@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ממשק ניהול - HomePay AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-left: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00d2d3 0%, #54a0ff 100%);
+        }
+        
+        .knowledge-item {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .knowledge-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .knowledge-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .backup-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .backup-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ממשק ניהול HomePay AI</h1>
+            <p>עדכון דינמי של בסיס הידע והנחיות המודל</p>
+        </div>
+        
+        <div class="content">
+            <div id="statusMessage" class="status-message"></div>
+            
+            <!-- בחירת נציג שירות -->
+            <div class="section">
+                <h2>הגדרות נציג שירות</h2>
+                <div class="form-group">
+                    <label for="representativeName">שם הסוכן:</label>
+                    <input type="text" id="representativeName" placeholder="הזן שם הסוכן" maxlength="50" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                <div class="form-group">
+                    <label for="representativeGender">מין הנציג:</label>
+                    <select id="representativeGender" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="male">נציג זכר</option>
+                        <option value="female">נציגה נקבה</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="communicationStyle">סגנון תקשורת:</label>
+                    <select id="communicationStyle" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                        <option value="young_friendly">צעיר וחברותי</option>
+                        <option value="formal_professional">רשמי ושירותי</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>תמונת פרופיל (אוטומטית לפי מין):</label>
+                    <div id="currentProfilePicture" style="margin-top: 10px;">
+                        <img id="profilePreview" src="" alt="תמונת פרופיל" style="max-width: 100px; max-height: 100px; border-radius: 50%; display: block; border: 2px solid #ddd;">
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">התמונה נבחרת אוטומטית בהתאם למין הנציג</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>תכונות קבועות של הנציג:</label>
+                    <p style="color: #666; font-size: 14px; margin-top: 5px;">
+                        ✓ מקצועי ומומחה במערכת HomePay<br>
+                        ✓ ידידותי ותומך<br>
+                        ✓ מעודד שימוש במערכת הדיגיטלית<br>
+                        ✓ סבלני ומסביר בבירור
+                    </p>
+                </div>
+                <button class="btn" onclick="updateRepresentativeSettings()">עדכן הגדרות נציג</button>
+                <button class="btn btn-success" onclick="loadCurrentRepresentativeSettings()">טען הגדרות נוכחיות</button>
+            </div>
+            
+            <!-- הנחיות מודל -->
+            <div class="section">
+                <h2>הנחיות מודל AI</h2>
+                <div class="form-group">
+                    <label for="modelInstructions">הנחיות למודל השפה:</label>
+                    <textarea id="modelInstructions" placeholder="הזן הנחיות למודל השפה כיצד לענות על שאלות..."></textarea>
+                </div>
+                <button class="btn" onclick="updateModelInstructions()">עדכן הנחיות</button>
+                <button class="btn btn-success" onclick="loadCurrentInstructions()">טען הנחיות נוכחיות</button>
+            </div>
+            
+            <!-- שאלות לא ידועות -->
+            <div class="section">
+                <h2>שאלות שהסוכן לא ידע לענות עליהן</h2>
+                <div id="unknownQuestionsList" style="margin-bottom: 20px;">
+                    <!-- Unknown questions will be loaded here -->
+                </div>
+                <button class="btn btn-success" onclick="loadUnknownQuestions()">טען שאלות לא ידועות</button>
+            </div>
+            
+            <!-- בסיס ידע -->
+            <div class="section">
+                <h2>בסיס ידע - שאלות ותשובות</h2>
+                <div id="knowledgeBase"></div>
+                
+                <h3>הוסף שאלה ותשובה חדשה</h3>
+                <div class="form-group">
+                    <label for="newQuestion">שאלה:</label>
+                    <input type="text" id="newQuestion" placeholder="הזן שאלה חדשה...">
+                </div>
+                <div class="form-group">
+                    <label for="newAnswer">תשובה:</label>
+                    <textarea id="newAnswer" placeholder="הזן תשובה מפורטת..."></textarea>
+                </div>
+                <button class="btn" onclick="addKnowledgeItem()">הוסף שאלה ותשובה</button>
+                <button class="btn btn-success" onclick="loadKnowledgeBase()">רענן בסיס ידע</button>
+            </div>
+            
+            <!-- גיבויים -->
+            <div class="section">
+                <h2>ניהול גיבויים</h2>
+                <div id="backupList" class="backup-list"></div>
+                <button class="btn btn-success" onclick="createBackup()">צור גיבוי חדש</button>
+                <button class="btn" onclick="loadBackups()">רענן רשימת גיבויים</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        function showStatus(message, isError = false) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        async function updateModelInstructions() {
+            const instructions = document.getElementById('modelInstructions').value;
+            if (!instructions.trim()) {
+                showStatus('אנא הזן הנחיות למודל', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/update_instructions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ instructions: instructions })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('הנחיות המודל עודכנו בהצלחה');
+                } else {
+                    showStatus(result.error || 'שגיאה בעדכון הנחיות', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function loadCurrentInstructions() {
+            try {
+                const response = await fetch(`${API_BASE}/get_instructions`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('modelInstructions').value = result.instructions;
+                    showStatus('הנחיות נוכחיות נטענו');
+                } else {
+                    showStatus('שגיאה בטעינת הנחיות', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function loadKnowledgeBase() {
+            try {
+                const response = await fetch(`${API_BASE}/get_knowledge`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayKnowledgeBase(result.knowledge);
+                    showStatus('בסיס הידע נטען');
+                } else {
+                    showStatus('שגיאה בטעינת בסיס ידע', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        function displayKnowledgeBase(knowledge) {
+            const container = document.getElementById('knowledgeBase');
+            container.innerHTML = '';
+            
+            knowledge.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'knowledge-item';
+                div.innerHTML = `
+                    <h4>שאלה: ${item.question}</h4>
+                    <p><strong>תשובה:</strong> ${item.answer}</p>
+                    <button class="btn btn-danger" onclick="deleteKnowledgeItem(${index})">מחק</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function addKnowledgeItem() {
+            const question = document.getElementById('newQuestion').value;
+            const answer = document.getElementById('newAnswer').value;
+            
+            if (!question.trim() || !answer.trim()) {
+                showStatus('אנא מלא שאלה ותשובה', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/add_knowledge`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ question: question, answer: answer })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('שאלה ותשובה נוספו בהצלחה');
+                    document.getElementById('newQuestion').value = '';
+                    document.getElementById('newAnswer').value = '';
+                    loadKnowledgeBase();
+                } else {
+                    showStatus(result.error || 'שגיאה בהוספת שאלה', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function deleteKnowledgeItem(index) {
+            if (!confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/delete_knowledge`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ index: index })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('פריט נמחק בהצלחה');
+                    loadKnowledgeBase();
+                } else {
+                    showStatus(result.error || 'שגיאה במחיקת פריט', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function createBackup() {
+            try {
+                const response = await fetch(`${API_BASE}/create_backup`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('גיבוי נוצר בהצלחה');
+                    loadBackups();
+                } else {
+                    showStatus(result.error || 'שגיאה ביצירת גיבוי', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function loadBackups() {
+            try {
+                const response = await fetch(`${API_BASE}/get_backups`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    displayBackups(result.backups);
+                } else {
+                    showStatus('שגיאה בטעינת גיבויים', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        function displayBackups(backups) {
+            const container = document.getElementById('backupList');
+            container.innerHTML = '';
+            
+            if (backups.length === 0) {
+                container.innerHTML = '<p>אין גיבויים זמינים</p>';
+                return;
+            }
+            
+            backups.forEach(backup => {
+                const div = document.createElement('div');
+                div.className = 'backup-item';
+                div.innerHTML = `
+                    <span>${backup.name} - ${backup.date}</span>
+                    <button class="btn" onclick="restoreBackup('${backup.name}')">שחזר</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        async function restoreBackup(backupName) {
+            if (!confirm(`האם אתה בטוח שברצונך לשחזר גיבוי ${backupName}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/restore_backup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ backup_name: backupName })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('גיבוי שוחזר בהצלחה');
+                    loadKnowledgeBase();
+                    loadCurrentInstructions();
+                    loadCurrentRepresentativeSettings();
+                } else {
+                    showStatus(result.error || 'שגיאה בשחזור גיבוי', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function updateRepresentativeSettings() {
+            const name = document.getElementById('representativeName').value;
+            const gender = document.getElementById('representativeGender').value;
+            const style = document.getElementById('communicationStyle').value;
+            
+            if (!name || name.trim().length === 0) {
+                showStatus('שם הסוכן לא יכול להיות ריק', true);
+                return;
+            }
+            
+            const requestBody = { 
+                name: name.trim(),
+                gender: gender,
+                communication_style: style
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/update_representative`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('הגדרות הנציג עודכנו בהצלחה');
+                    updateProfilePreview(gender);
+                    loadCurrentRepresentativeSettings();
+                } else {
+                    showStatus(result.error || 'שגיאה בעדכון הגדרות נציג', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        async function loadCurrentRepresentativeSettings() {
+            try {
+                const response = await fetch(`${API_BASE}/get_representative`);
+                const result = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('representativeName').value = result.name || 'סוכן HomePay';
+                    document.getElementById('representativeGender').value = result.gender || 'male';
+                    document.getElementById('communicationStyle').value = result.communication_style || 'young_friendly';
+                    
+                    updateProfilePreview(result.gender || 'male');
+                    
+                    showStatus('הגדרות נציג נוכחיות נטענו');
+                } else {
+                    showStatus('שגיאה בטעינת הגדרות נציג', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        function updateProfilePreview(gender) {
+            const profilePreview = document.getElementById('profilePreview');
+            if (gender === 'female') {
+                profilePreview.src = '/client/assets/profiles/Fagent_profile.jpg';
+            } else {
+                profilePreview.src = '/client/assets/profiles/Magent_profile.jpg';
+            }
+            profilePreview.style.display = 'block';
+        }
+        
+        // Add event listener to gender selection to update preview immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            const genderSelect = document.getElementById('representativeGender');
+            if (genderSelect) {
+                genderSelect.addEventListener('change', function() {
+                    updateProfilePreview(this.value);
+                });
+            }
+        });
+        
+        async function uploadProfilePicture(file) {
+            if (!file) return null;
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showStatus('יש להעלות קובץ תמונה בלבד', true);
+                return null;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showStatus('גודל הקובץ חייב להיות קטן מ-5MB', true);
+                return null;
+            }
+            
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+            
+            try {
+                const response = await fetch(`${API_BASE}/upload_profile_picture`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    return result.filename;
+                } else {
+                    showStatus(result.error || 'שגיאה בהעלאת התמונה', true);
+                    return null;
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+                return null;
+            }
+        }
+        
+        async function loadUnknownQuestions() {
+            try {
+                const response = await fetch(`${API_BASE}/get_unknown_questions`);
+                const questions = await response.json();
+                
+                const listContainer = document.getElementById('unknownQuestionsList');
+                
+                if (questions.length === 0) {
+                    listContainer.innerHTML = '<p style="color: #666; font-style: italic;">אין שאלות לא ידועות</p>';
+                    return;
+                }
+                
+                let html = '<div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px;">';
+                
+                questions.forEach(question => {
+                    const date = new Date(question.timestamp).toLocaleString('he-IL');
+                    const statusClass = question.resolved ? 'resolved' : 'unresolved';
+                    const statusText = question.resolved ? 'נפתר' : 'לא נפתר';
+                    
+                    html += `
+                        <div class="unknown-question-item ${statusClass}" style="margin-bottom: 15px; padding: 10px; border: 1px solid #eee; border-radius: 5px; background: ${question.resolved ? '#f0f8ff' : '#fff8f0'};">
+                            <div style="font-weight: bold; margin-bottom: 5px;">שאלה #${question.id}</div>
+                            <div style="margin-bottom: 8px;">${question.question}</div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">תאריך: ${date}</div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 12px; color: ${question.resolved ? '#28a745' : '#dc3545'};">סטטוס: ${statusText}</span>
+                                ${!question.resolved ? `<button class="btn" style="padding: 5px 10px; font-size: 12px;" onclick="markQuestionResolved(${question.id})">סמן כנפתר</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                listContainer.innerHTML = html;
+                showStatus('שאלות לא ידועות נטענו בהצלחה');
+                
+            } catch (error) {
+                showStatus('שגיאה בטעינת שאלות לא ידועות', true);
+            }
+        }
+        
+        async function markQuestionResolved(questionId) {
+            try {
+                const response = await fetch(`${API_BASE}/mark_question_resolved`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: questionId })
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    showStatus('השאלה סומנה כנפתרת');
+                    loadUnknownQuestions(); // Reload the list
+                } else {
+                    showStatus(result.error || 'שגיאה בעדכון סטטוס שאלה', true);
+                }
+            } catch (error) {
+                showStatus('שגיאה בחיבור לשרת', true);
+            }
+        }
+        
+        // טען נתונים בטעינת הדף
+        window.onload = function() {
+            loadKnowledgeBase();
+            loadCurrentInstructions();
+            loadCurrentRepresentativeSettings();
+            loadBackups();
+            loadUnknownQuestions();
+        };
+    </script>
+</body>
+</html>

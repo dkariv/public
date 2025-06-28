@@ -1,0 +1,98 @@
+<guide>
+  <title>מדריך לרוכש - HomePay</title>
+  <mainHeading>מדריך לרוכש במערכת HomePay</mainHeading>
+  <logo>assets/hplogo.png</logo>
+  <headerSupportLink>
+    <url>ai_support_agent.html</url>
+    <text>תמיכה עם סוכן AI</text>
+  </headerSupportLink>
+
+  <introduction id="buyer_introduction">
+    <heading>מזל טוב על רכישת הדירה החדשה!</heading>
+    <paragraph>אנו מברכים אותך לרגל הצעד המשמעותי והמרגש – רכישת דירה בפרויקט שמציע שירות חדשני ומתקדם לניהול תשלומים דיגיטליים לפי חוק המכר.</paragraph>
+    <paragraph>באמצעות מערכת HomePay, עומדת לרשותך פלטפורמה חכמה, נוחה ובטוחה שתאפשר לך לנהל את תשלומי הדירה בקלות ובשקיפות מלאה. תוכל לצפות בשוברים ובפרטי התשלום שלך בכל רגע, להתעדכן בסכומים ובמועדים בזמן אמת, ולבצע תשלומים ישירות מהטלפון הנייד – בלי בירוקרטיה, בלי תורים ובלי לצאת מהבית.</paragraph>
+    <paragraph>המדריך הזה ילווה אותך צעד אחר צעד בתהליך ההתחברות למערכת וביצוע התשלומים הראשונים שלך, כדי להעניק לך חוויית רכישה דיגיטלית מתקדמה ושקט נפשי לאורך כל הדרך.</paragraph>
+  </introduction>
+
+  <sections>
+    <section id="buyer_section1">
+      <heading>שלב 1: התחברות למערכת</heading>
+      <steps>
+        <step>הזן את מספר הטלפון ומספר תעודת הזהות שלך במסך ההתחברות</step>
+        <step>לחץ על כפתור "שלח" כדי לקבל קוד אימות</step>
+        <step>המתן לקבלת קוד אימות בן 4 ספרות בהודעת SMS</step>
+        <step>הזן את קוד האימות במסך האימות ולחץ "לאמת"</step>
+        <step>לאחר אימות מוצלח תועבר לדף הבית של המערכת</step>
+      </steps>
+      <images>
+        <image src="images/01_login_screen.png" alt="מסך התחברות - הזן מספר טלפון ותעודת זהות"/>
+        <image src="images/05_otp_filled_processing.png" alt="מסך אימות עם קוד מולא ובעיבוד"/>
+      </images>
+    </section>
+
+    <section id="buyer_section2">
+      <heading>שלב 2: סקירת פרטי הדירה והניווט במערכת</heading>
+      <steps>
+        <step>בדף הבית תוכל לראות את פרטי הדירה שלך: מספר חדרים, שטח, קומה ומיקום</step>
+        <step>צפה במידע הפיננסי כולל תאריך התשלום הבא</step>
+        <step>השתמש בתפריט התחתון לניווט בין 4 המסכים הראשיים:</step>
+        <step>• פרטי הדירה - מידע כללי על הנכס</step>
+        <step>• תשלומים - רשימת כל שוברי התשלום</step>
+        <step>• קבצים - העלאה וניהול מסמכים</step>
+        <step>• הגדרות - פרטי המשתמש והתנתקות</step>
+      </steps>
+      <images>
+        <image src="images/06_main_dashboard_apartment_details.png" alt="דף הבית - פרטי הדירה ומידע פיננסי"/>
+        <image src="images/14_settings_screen_profile_logout.png" alt="מסך הגדרות - פרטי משתמש והתנתקות"/>
+      </images>
+    </section>
+
+    <section id="buyer_section3">
+      <heading>שלב 3: צפייה בתשלומים וביצוע תשלום</heading>
+      <steps>
+        <step>עבור למסך "תשלומים" כדי לראות את רשימת כל שוברי התשלום</step>
+        <step>כל שובר מציג: סכום, תאריך פירעון, סטטוס התשלום</step>
+        <step>שוברים עם סטטוס "ממתין לאישור" מציגים כפתור "שלם עכשיו"</step>
+        <step>לחץ על "שלם עכשיו" כדי להתחיל תהליך התשלום</step>
+        <step>יופיע חלון עם פרטי התשלום וכפתור "תהליך הנפקת שובר"</step>
+      </steps>
+      <images>
+        <image src="images/10_payments_515k_365k_pay_now_buttons.png" alt="מסך תשלומים עם כפתורי שלם עכשיו"/>
+        <image src="images/16_payment_details_modal_515k.png" alt="חלון פרטי התשלום וסיכום הסכום"/>
+      </images>
+    </section>
+
+    <section id="buyer_section4">
+      <heading>שלב 4: מילוי פרטי חשבון הבנק</heading>
+      <steps>
+        <step>לחץ על "תהליך הנפקת שובר" כדי להמשיך לטופס פרטי הבנק</step>
+        <step>בחר את הבנק שלך מהרשימה הנפתחת (לאומי, דיסקונט, הפועלים וכו')</step>
+        <step>הזן את מספר החשבון ומספר הסניף</step>
+        <step>בחר את סוג התשלום: "הון עצמי" או "משכנתא"</step>
+      </steps>
+      <images>
+        <image src="images/17_bank_account_details_form.png" alt="טופס פרטי חשבון בנק"/>
+      </images>
+    </section>
+
+    <section id="buyer_section5">
+      <heading>שלב 5: הגדרת מורשה חתימה והעלאת מסמכים</heading>
+      <steps>
+        <step>קבע את מספר מורשי החתימה (ברירת מחדל: 1)</step>
+        <step>הזן את השם המלא של מורשה החתימה הראשון</step>
+        <step>לחץ על "העלה תעודת זהות" כדי להעלות תמונה של תעודת הזהות</step>
+        <step>בצע חתימה דיגיטלית באזור החתימה ("חתום כאן")</step>
+        <step>לחץ על "שלח הוראה במייל" כדי להשלים את התהליך</step>
+      </steps>
+      <images>
+        <image src="images/21_payment_form_account_type_authorized_signatory.png" alt="בחירת סוג תשלום והגדרת מורשה חתימה"/>
+        <image src="images/22_authorized_signatory_id_upload_signature.png" alt="העלאת תעודת זהות וחתימה דיגיטלית"/>
+      </images>
+    </section>
+  </sections>
+  
+  <footer>
+    <separator>true</separator>
+    <text>כל הזכויות שמורות לחברת הומפיי בע״מ www.homepay.co.il למידע נוסף info@homepay.co.il כתובתנו : רחוב זאב זבוטינסקי 9 בני ברק, מגדל הכשרת הישוב</text>
+  </footer>
+</guide>

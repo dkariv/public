@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מדריך לרוכש - HomePay</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.8;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+    
+    .main-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      min-height: 100vh;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 3px solid #667eea;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    header img {
+      max-height: 80px;
+      filter: drop-shadow(0 2px 10px rgba(0,0,0,0.1));
+    }
+    
+    .header-support-link {
+      text-decoration: none;
+      color: #667eea;
+      font-weight: bold;
+      padding: 12px 24px;
+      border: 2px solid #667eea;
+      border-radius: 25px;
+      margin-left: 20px;
+      transition: all 0.3s ease;
+      background: rgba(102, 126, 234, 0.1);
+    }
+    
+    .header-support-link:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .container {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .sidebar {
+      width: 300px;
+      background: linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%);
+      padding: 30px 20px;
+      height: calc(100vh - 140px);
+      position: sticky;
+      top: 140px;
+      overflow-y: auto;
+      border-left: 3px solid #667eea;
+      box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar ul li {
+      margin-bottom: 8px;
+    }
+    
+    .sidebar ul li a {
+      display: block;
+      padding: 15px 20px;
+      text-decoration: none;
+      color: #333;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+    
+    .sidebar ul li a:hover {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transform: translateX(-5px);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .content {
+      flex-grow: 1;
+      padding: 40px;
+      margin-right: 20px;
+    }
+
+    .menu-toggle {
+      display: none;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      border: none;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        display: none;
+        border-left: none;
+        border-top: 3px solid #667eea;
+      }
+      .sidebar.active {
+        display: block;
+      }
+      .menu-toggle {
+        display: block;
+      }
+      .content {
+        margin-right: 0;
+        padding: 20px;
+      }
+      header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .header-support-link {
+        margin-left: 0;
+      }
+    }
+
+    h1 {
+      color: #667eea;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    h2 {
+      color: #667eea;
+      font-size: 1.8em;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+    
+    .section {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+      padding: 40px;
+      margin-bottom: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border: 1px solid rgba(102, 126, 234, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+    
+    .introduction {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 50px 40px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+    }
+    
+    .introduction h2 {
+      color: white;
+      border-bottom: 2px solid rgba(255,255,255,0.3);
+      font-size: 2.2em;
+    }
+    
+    .introduction p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+    
+    ul {
+      list-style: none;
+      padding-right: 0;
+    }
+    
+    li {
+      margin-bottom: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+      font-size: 1.1em;
+    }
+    
+    li::before {
+      content: "✓";
+      color: #667eea;
+      font-weight: bold;
+      font-size: 1.2em;
+      display: inline-block;
+      width: 1.5em;
+      margin-right: 10px;
+    }
+    
+    img.screenshot {
+      display: block;
+      margin: 30px auto;
+      max-width: 100%;
+      max-height: 600px;
+      border: 3px solid #667eea;
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease;
+    }
+    
+    img.screenshot:hover {
+      transform: scale(1.02);
+    }
+    
+    .step-number {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-left: 15px;
+      font-size: 1.2em;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-right: 4px solid #667eea;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    
+    .footer {
+      background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+      border-top: 3px solid #667eea;
+      padding: 30px 40px;
+      margin-top: 50px;
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+      line-height: 1.6;
+      border-radius: 15px 15px 0 0;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <header id="header-placeholder"></header>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ תפריט ניווט</button>
+    <div class="container">
+      <nav class="sidebar">
+        <ul id="sidebar-ul">
+          <!-- Sidebar items will be populated by JavaScript -->
+        </ul>
+      </nav>
+      <div class="content" id="content-placeholder">
+        <!-- Content will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('homepay_guide_buyer.xml')
+        .then(response => response.text())
+        .then(data => {
+          let parser = new DOMParser();
+          let xmlDoc = parser.parseFromString(data, 'application/xml');
+
+          // Populate title
+          document.title = xmlDoc.querySelector('title').textContent;
+
+          // Populate header
+          const headerPlaceholder = document.getElementById('header-placeholder');
+          const logoSrc = xmlDoc.querySelector('logo').textContent;
+          const headerImg = document.createElement('img');
+          headerImg.src = logoSrc;
+          headerImg.alt = 'HomePay Logo';
+          headerPlaceholder.appendChild(headerImg);
+
+          // Populate AI Support Link in header
+          const supportLinkData = xmlDoc.querySelector('headerSupportLink');
+          if (supportLinkData) {
+            const supportUrl = supportLinkData.querySelector('url').textContent;
+            const supportText = supportLinkData.querySelector('text').textContent;
+            const supportLinkElement = document.createElement('a');
+            supportLinkElement.href = supportUrl;
+            supportLinkElement.textContent = supportText;
+            supportLinkElement.className = 'header-support-link';
+            headerPlaceholder.appendChild(supportLinkElement);
+          }
+
+          // Populate sidebar and content
+          const sidebarUl = document.getElementById('sidebar-ul');
+          const contentPlaceholder = document.getElementById('content-placeholder');
+
+          const mainHeadingText = xmlDoc.querySelector('mainHeading').textContent;
+          const mainHeadingElement = document.createElement('h1');
+          mainHeadingElement.textContent = mainHeadingText;
+          contentPlaceholder.appendChild(mainHeadingElement);
+
+          // Introduction
+          const introduction = xmlDoc.querySelector('introduction');
+          if (introduction) {
+            const introId = introduction.getAttribute('id');
+            const introHeadingText = introduction.querySelector('heading').textContent;
+
+            const sidebarLiIntro = document.createElement('li');
+            const sidebarLinkIntro = document.createElement('a');
+            sidebarLinkIntro.href = `#${introId}`;
+            sidebarLinkIntro.textContent = "ברוכים הבאים";
+            sidebarLinkIntro.onclick = selectMenuItem;
+            sidebarLiIntro.appendChild(sidebarLinkIntro);
+            sidebarUl.appendChild(sidebarLiIntro);
+
+            const introSectionDiv = document.createElement('div');
+            introSectionDiv.className = 'section introduction';
+            introSectionDiv.id = introId;
+
+            const introH2 = document.createElement('h2');
+            introH2.textContent = introHeadingText;
+            introSectionDiv.appendChild(introH2);
+
+            introduction.querySelectorAll('paragraph').forEach(p => {
+              const pElement = document.createElement('p');
+              pElement.textContent = p.textContent;
+              introSectionDiv.appendChild(pElement);
+            });
+            contentPlaceholder.appendChild(introSectionDiv);
+          }
+
+          // Sections
+          let sectionCounter = 1;
+          xmlDoc.querySelectorAll('sections section').forEach(section => {
+            const sectionId = section.getAttribute('id');
+            const sectionHeadingText = section.querySelector('heading').textContent;
+
+            const sidebarLi = document.createElement('li');
+            const sidebarLink = document.createElement('a');
+            sidebarLink.href = `#${sectionId}`;
+            sidebarLink.innerHTML = `<span class="step-number">${sectionCounter}</span> ${sectionHeadingText}`;
+            sidebarLink.onclick = selectMenuItem;
+            sidebarLi.appendChild(sidebarLink);
+            sidebarUl.appendChild(sidebarLi);
+
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'section';
+            sectionDiv.id = sectionId;
+
+            const h2 = document.createElement('h2');
+            h2.innerHTML = `<span class="step-number">${sectionCounter}</span> ${sectionHeadingText}`;
+            sectionDiv.appendChild(h2);
+
+            const stepsUl = document.createElement('ul');
+            section.querySelectorAll('steps step').forEach(stepNode => {
+              const li = document.createElement('li');
+              li.textContent = stepNode.textContent;
+              stepsUl.appendChild(li);
+            });
+            if (stepsUl.hasChildNodes()) {
+              const highlightBox = document.createElement('div');
+              highlightBox.className = 'highlight-box';
+              highlightBox.appendChild(stepsUl);
+              sectionDiv.appendChild(highlightBox);
+            }
+
+            section.querySelectorAll('images image').forEach(imgNode => {
+              const img = document.createElement('img');
+              img.src = imgNode.getAttribute('src');
+              img.alt = imgNode.getAttribute('alt');
+              img.className = 'screenshot';
+              sectionDiv.appendChild(img);
+            });
+            contentPlaceholder.appendChild(sectionDiv);
+            sectionCounter++;
+          });
+
+          // Footer
+          const footer = xmlDoc.querySelector('footer');
+          if (footer) {
+            const footerDiv = document.createElement('div');
+            footerDiv.className = 'footer';
+            
+            const footerText = footer.querySelector('text').textContent;
+            const footerP = document.createElement('p');
+            footerP.textContent = footerText;
+            footerDiv.appendChild(footerP);
+            
+            contentPlaceholder.appendChild(footerDiv);
+          }
+        })
+        .catch(error => console.error('Error loading or parsing XML:', error));
+    });
+
+    function toggleMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      sidebar.classList.toggle('active');
+    }
+
+    function selectMenuItem() {
+      const sidebar = document.querySelector('.sidebar');
+      if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

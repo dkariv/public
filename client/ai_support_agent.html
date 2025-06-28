@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תמיכה עם סוכן AI - HomePay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header {
+            background: #ffffff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            right: 20px;
+            color: #005baa;
+            text-decoration: none;
+            background: #f0f8ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #005baa;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #005baa;
+            color: white;
+            text-decoration: none;
+        }
+        
+        header img {
+            max-height: 30px;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* To keep border-radius effect on children */
+            flex-grow: 1; /* Allows chat container to take available space */
+        }
+        .chat-header {
+            background-color: #005baa;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .agent-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .agent-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Space between messages */
+        }
+        .message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            line-height: 1.5;
+        }
+        .message.user {
+            background-color: #e6f3ff;
+            color: #333;
+            align-self: flex-start; /* Align to left for RTL */
+            border-bottom-left-radius: 0;
+        }
+        .message.ai {
+            background-color: #f0f0f0;
+            color: #333;
+            align-self: flex-end; /* Align to right for RTL */
+            border-bottom-right-radius: 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .ai-message-content {
+            flex: 1;
+        }
+        
+        .ai-message-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+        .chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
+        .chat-input input[type="text"] {
+            flex-grow: 1;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-size: 1em;
+            margin-left: 10px; /* Space between input and button for RTL */
+        }
+        .chat-input button {
+            background-color: #005baa;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .chat-input button:hover {
+            background-color: #004a8c;
+        }
+        .typing-indicator {
+            font-style: italic;
+            color: #777;
+            padding: 5px 20px;
+            text-align: right; /* RTL */
+            display: none; /* Hidden by default */
+        }
+        
+        .chat-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .warning-message {
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-button {
+            background-color: #005baa;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        
+        .footer-button:hover {
+            background-color: #004a8c;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer-button.secondary {
+            background-color: #6c757d;
+        }
+        
+        .footer-button.secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Phone Verification Styles */
+        .verification-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .verification-form h2 {
+            color: #005baa;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .verification-form p {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            direction: ltr;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #005baa;
+        }
+        
+        .verify-btn {
+            background-color: #005baa;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .verify-btn:hover {
+            background-color: #004a8c;
+        }
+        
+        .verify-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-button">← חזרה למדריך</a>
+        <img src="assets/hplogo.png" alt="HomePay Logo">
+    </header>
+
+    <!-- Phone Verification Form -->
+    <div id="phone-verification-container" class="verification-container">
+        <div class="verification-form">
+            <h2>אימות טלפון</h2>
+            <p>על מנת להתחיל שיחה עם הסוכן, אנא הזן את מספר הטלפון שלך לקבלת קוד אימות:</p>
+            
+            <form id="phone-form">
+                <div class="form-group">
+                    <label for="phone-input">מספר טלפון:</label>
+                    <input type="tel" id="phone-input" placeholder="050-1234567" required>
+                </div>
+                <button type="submit" class="verify-btn">שלח קוד אימות</button>
+            </form>
+            
+            <div id="verification-code-section" style="display: none;">
+                <div class="form-group">
+                    <label for="code-input">קוד אימות:</label>
+                    <input type="text" id="code-input" placeholder="הזן קוד בן 4 ספרות" maxlength="4" required>
+                </div>
+                <button id="verify-code-btn" class="verify-btn">אמת קוד</button>
+            </div>
+            
+            <div id="verification-message" class="message"></div>
+        </div>
+    </div>
+
+    <div class="chat-container" id="chat-container" style="display: none;">
+        <div class="chat-header">
+            <div class="agent-info">
+                <img id="agentAvatar" src="" alt="תמונת פרופיל" class="agent-avatar" style="display: none;">
+                <span id="agentName">סוכן תמיכה AI</span>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will appear here -->
+            <div class="message ai">
+                <img class="ai-message-avatar" src="/client/assets/hplogo.png" alt="תמונת פרופיל">
+                <div class="ai-message-content">
+                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay.<br><br>
+                    <strong>⚠️ שים לב:</strong> הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: <a href="mailto:info@homepay.co.il" style="color: #005baa;">info@homepay.co.il</a><br><br>
+                    איך אני יכול לעזור לך היום?
+                </div>
+            </div>
+        </div>
+        <div class="typing-indicator" id="typing-indicator">הסוכן מקליד...</div>
+        <form class="chat-input" id="chat-form">
+            <input type="text" id="user-input" placeholder="הקלד את שאלתך כאן..." autocomplete="off">
+            <button type="submit">שלח</button>
+        </form>
+        
+        <div class="chat-footer">
+            <div class="warning-message">
+                <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.
+            </div>
+            <div class="footer-buttons">
+                <a href="index.html" class="footer-button secondary">חזרה למדריך</a>
+                <button id="contact-human" class="footer-button" onclick="contactHumanRepresentative()">פניה לנציג אנושי</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+        
+        // Load agent settings on page load
+        async function loadAgentSettings() {
+            try {
+                const response = await fetch('/api/get_representative');
+                if (response.ok) {
+                    window.agentSettings = await response.json();
+                    
+                    // Update agent name in header
+                    const agentNameElement = document.getElementById('agentName');
+                    if (agentNameElement && window.agentSettings.name) {
+                        agentNameElement.textContent = window.agentSettings.name;
+                    }
+                    
+                    // Update profile picture in header
+                    const agentAvatarElement = document.getElementById('agentAvatar');
+                    if (agentAvatarElement && window.agentSettings.profile_picture) {
+                        agentAvatarElement.src = `/client/${window.agentSettings.profile_picture}`;
+                        agentAvatarElement.style.display = 'block';
+                        agentAvatarElement.style.cursor = 'pointer';
+                        agentAvatarElement.onclick = showEnlargedProfilePicture;
+                        agentAvatarElement.onerror = function() {
+                            this.style.display = 'none';
+                        };
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load agent settings:', error);
+                window.agentSettings = null;
+            }
+        }
+        
+        // Load agent settings when page loads
+        window.addEventListener('load', loadAgentSettings);
+        
+        // Store chat transcript for logging
+        window.chatTranscript = [];
+        window.userPhone = null;
+        
+        // Function to add message to transcript
+        function addToTranscript(message, sender) {
+            const timestamp = new Date().toLocaleString('he-IL');
+            window.chatTranscript.push({
+                timestamp: timestamp,
+                sender: sender,
+                message: message,
+                phone: window.userPhone
+            });
+        }
+        
+        // Function to get formatted transcript
+        function getFormattedTranscript() {
+            let transcript = 'תמליל שיחה עם סוכן AI - HomePay\n';
+            transcript += '=====================================\n';
+            if (window.userPhone) {
+                transcript += `מספר טלפון: ${window.userPhone}\n`;
+            }
+            transcript += '\n';
+            
+            window.chatTranscript.forEach(entry => {
+                const senderName = entry.sender === 'user' ? 'משתמש' : 'סוכן AI';
+                transcript += `[${entry.timestamp}] ${senderName}: ${entry.message}\n\n`;
+            });
+            
+            return transcript;
+        }
+        
+        // Function to contact human representative
+        async function contactHumanRepresentative() {
+            const transcript = getFormattedTranscript();
+            
+            // Log the transcript to server
+            try {
+                await fetch('/api/log_chat_transcript', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        transcript: transcript,
+                        timestamp: new Date().toISOString(),
+                        phone: window.userPhone
+                    }),
+                });
+            } catch (error) {
+                console.error('Error logging transcript:', error);
+            }
+            
+            // Create email
+            const subject = encodeURIComponent('העברת פניה לנציג אנושי');
+            const body = encodeURIComponent(transcript);
+            const emailUrl = `mailto:info@homepay.co.il?subject=${subject}&body=${body}`;
+            
+            // Open email client
+            window.location.href = emailUrl;
+        }
+        
+        // Function to show profile picture in enlarged view
+        function showEnlargedProfilePicture() {
+            if (!window.agentSettings?.profile_picture) return;
+            
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                cursor: pointer;
+            `;
+            
+            // Create enlarged image
+            const img = document.createElement('img');
+            img.src = `/client/${window.agentSettings.profile_picture}`;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            `;
+            
+            modal.appendChild(img);
+            document.body.appendChild(modal);
+            
+            // Close modal on click
+            modal.addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+            
+            // Close modal on escape key
+            const escapeHandler = function(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', escapeHandler);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+        }
+        
+        // Phone verification functionality
+        document.getElementById('phone-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const phoneInput = document.getElementById('phone-input');
+            const phone = phoneInput.value.trim();
+            const messageDiv = document.getElementById('verification-message');
+            
+            if (!phone) {
+                showMessage('אנא הזן מספר טלפון', 'error');
+                return;
+            }
+            
+            // Simple phone validation
+            const phoneRegex = /^[0-9\-\s\+\(\)]{9,15}$/;
+            if (!phoneRegex.test(phone)) {
+                showMessage('אנא הזן מספר טלפון תקין', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/send_verification_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone: phone }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    window.userPhone = phone;
+                    document.getElementById('verification-code-section').style.display = 'block';
+                    phoneInput.disabled = true;
+                    document.querySelector('#phone-form button').disabled = true;
+                    showMessage('קוד אימות נשלח! אנא הזן את הקוד: 3110', 'success');
+                } else {
+                    showMessage(result.message || 'שגיאה בשליחת קוד אימות', 'error');
+                }
+            } catch (error) {
+                console.error('Error sending verification code:', error);
+                showMessage('שגיאה בחיבור לשרת', 'error');
+            }
+        });
+        
+        document.getElementById('verify-code-btn').addEventListener('click', async function() {
+            const codeInput = document.getElementById('code-input');
+            const code = codeInput.value.trim();
+            
+            if (!code) {
+                showMessage('אנא הזן קוד אימות', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/verify_phone', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        phone: window.userPhone,
+                        code: code 
+                    }),
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    // Hide verification form and show chat
+                    document.getElementById('phone-verification-container').style.display = 'none';
+                    document.getElementById('chat-container').style.display = 'block';
+                    
+                    // Load agent settings and initialize chat
+                    loadAgentSettings();
+                    
+                    // Add initial welcome message to transcript
+                    const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il איך אני יכול לעזור לך היום?';
+                    addToTranscript(welcomeMessage, 'ai');
+                } else {
+                    showMessage(result.message || 'קוד אימות שגוי', 'error');
+                }
+            } catch (error) {
+                console.error('Error verifying code:', error);
+                showMessage('שגיאה בחיבור לשרת', 'error');
+            }
+        });
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('verification-message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+        }
+        
+        // Load agent settings when page loads (but don't show chat yet)
+        window.addEventListener('load', function() {
+            // Only load agent settings, don't initialize chat until phone is verified
+        });
+
+        chatForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const userMessage = userInput.value.trim();
+
+            if (userMessage) {
+                addMessage(userMessage, 'user');
+                addToTranscript(userMessage, 'user');
+                userInput.value = ''; // Clear input
+                typingIndicator.style.display = 'block'; // Show typing indicator
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: userMessage }),
+                    });
+
+                    typingIndicator.style.display = 'none'; // Hide typing indicator
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        addMessage(`שגיאה: ${errorData.error || response.statusText}`, 'ai');
+                        return;
+                    }
+
+                    const data = await response.json();
+                    addMessage(data.reply, 'ai');
+                    addToTranscript(data.reply, 'ai');
+
+                } catch (error) {
+                    typingIndicator.style.display = 'none'; // Hide typing indicator
+                    console.error('Error sending message:', error);
+                    const errorMsg = 'מצטער, אירעה שגיאה בתקשורת עם השרת.';
+                    addMessage(errorMsg, 'ai');
+                    addToTranscript(errorMsg, 'ai');
+                }
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            
+            if (sender === 'user') {
+                messageDiv.textContent = text;
+            } else if (sender === 'ai') {
+                // AI message with avatar
+                const avatar = document.createElement('img');
+                avatar.className = 'ai-message-avatar';
+                avatar.src = window.agentSettings?.profile_picture ? `/client/${window.agentSettings.profile_picture}` : '/client/assets/hplogo.png';
+                avatar.alt = 'תמונת פרופיל';
+                avatar.onerror = function() {
+                    this.src = '/client/assets/hplogo.png';
+                };
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'ai-message-content';
+                contentDiv.innerHTML = text; // Use innerHTML to support HTML content like <br> tags
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(contentDiv);
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+        }
+    </script>
+</body>
+</html>
