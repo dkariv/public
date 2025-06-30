@@ -512,7 +512,7 @@ def log_unknown_question(user_message):
         app.logger.error(f"Failed to log unknown question: {e}")
 
 def get_fallback_response(user_message):
-    """Fallback to keyword matching if LLM fails"""
+    """Enhanced fallback with sophisticated Hebrew text matching"""
     message_lower = user_message.lower()
     message_words = set(message_lower.split())
 
@@ -522,18 +522,33 @@ def get_fallback_response(user_message):
     
     for qa in kb.get('qa_pairs', []):
         keywords = [kw.lower() for kw in qa.get('keywords', [])]
-        keyword_matches = sum(1 for kw in keywords if any(word in kw or kw in word for word in message_words))
+        
+        keyword_matches = 0
+        for kw in keywords:
+            for word in message_words:
+                if kw == word:
+                    keyword_matches += 3
+                elif kw in word or word in kw:
+                    keyword_matches += 2
+                elif len(kw) >= 3 and len(word) >= 3 and kw[:3] == word[:3]:
+                    keyword_matches += 1
         
         question_words = set(qa['question'].lower().split())
         question_matches = len(message_words.intersection(question_words))
         
-        relevance_score = keyword_matches * 2 + question_matches
+        context_boost = 0
+        financial_terms = ['סכום', 'תשלום', 'כסף', 'שובר', 'בנק', 'חשבון']
+        if any(term in message_lower for term in financial_terms):
+            if any(term in qa['question'].lower() for term in financial_terms):
+                context_boost = 2
+        
+        relevance_score = keyword_matches * 2 + question_matches + context_boost
         
         if relevance_score > best_score:
             best_score = relevance_score
             best_match = qa
     
-    if best_match and best_score >= 2:
+    if best_match and best_score >= 3:
         return best_match['answer']
 
     if any(word in message_lower for word in ["שלום", "היי", "בוקר טוב", "ערב טוב"]):
