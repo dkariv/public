@@ -17,7 +17,7 @@ app.secret_key = 'HomePay_AI_Admin_Secret_Key_2025'  # Change this in production
 CORS(app)# This will allow all origins. For production, configure it more securely.
 
 OLLAMA_URL = os.getenv('OLLAMA_URL', 'http://localhost:11434')
-LLM_MODEL = os.getenv('LLM_MODEL', 'llama3.2:3b')
+LLM_MODEL = os.getenv('LLM_MODEL', 'llama2:7b')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY', '')
 USE_HYBRID_LLM = os.getenv('USE_HYBRID_LLM', 'true').lower() == 'true'
 
