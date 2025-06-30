@@ -60,7 +60,7 @@ def serve_guide_xml():
 @app.route('/admin/login')
 def admin_login_page():
     """Serve the admin login page"""
-אלו בשרת      return send_from_directory('.', 'admin_login.html')
+    return send_from_directory('.', 'admin_login.html')
 
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
