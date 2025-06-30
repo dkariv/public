@@ -585,7 +585,7 @@ def get_knowledge():
     """Get current knowledge base"""
     try:
         kb = load_knowledge_base()
-        return jsonify({"knowledge": kb.get('qa_pairs', [])})
+        return jsonify({"qa_pairs": kb.get('qa_pairs', [])})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
