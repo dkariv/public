@@ -60,7 +60,7 @@ def admin_login():
         email = data.get('email', '').strip()
         password = data.get('password', '')
         
-        if email == 'david@cbsw3.com' and password == 'HomePay23':
+        if email == 'admin@homepay.co.il' and password == 'HomePay23':
             session['admin_authenticated'] = True
             session['admin_email'] = email
             session['login_time'] = datetime.now().isoformat()
