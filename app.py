@@ -37,20 +37,30 @@ def cache_response(user_message, response):
     """Cache response for future use"""
     message_key = user_message.lower().strip()
     response_cache[message_key] = response
-    
+
     if len(response_cache) > 100:
         oldest_key = next(iter(response_cache))
         del response_cache[oldest_key]
+
+@app.route('/')
+def serve_index():
+    """Serve the main index.html page"""
+    return send_from_directory('.', 'index.html')
 
 @app.route('/client/<path:filename>')
 def serve_client_files(filename):
     """Serve static files from the client directory"""
     return send_from_directory('client', filename)
 
+@app.route('/homepay_guide_buyer.xml')
+def serve_guide_xml():
+    """Serve the guide XML file"""
+    return send_from_directory('.', 'homepay_guide_buyer.xml')
+
 @app.route('/admin/login')
 def admin_login_page():
     """Serve the admin login page"""
-    return send_from_directory('.', 'admin_login.html')
+אלו בשרת      return send_from_directory('.', 'admin_login.html')
 
 @app.route('/admin/login', methods=['POST'])
 def admin_login():
@@ -59,12 +69,12 @@ def admin_login():
         data = request.get_json()
         email = data.get('email', '').strip()
         password = data.get('password', '')
-        
+
         if email == 'admin@homepay.co.il' and password == 'HomePay23':
             session['admin_authenticated'] = True
             session['admin_email'] = email
             session['login_time'] = datetime.now().isoformat()
-            
+
             app.logger.info(f"Admin login successful for {email}")
             return jsonify({
                 'success': True,
@@ -76,7 +86,7 @@ def admin_login():
                 'success': False,
                 'message': 'כתובת דואר אלקטרוני או סיסמה שגויים'
             }), 401
-            
+
     except Exception as e:
         app.logger.error(f"Login error: {str(e)}")
         return jsonify({
@@ -122,7 +132,7 @@ def chat():
         # ai_reply = f"קיבלתי את הודעתך: \"{user_message}\". אני עדיין בפיתוח."
 
         ai_reply = get_homepay_response(user_message)
-        
+
         if ai_reply:
             try:
                 if '\\u' in ai_reply:
@@ -191,21 +201,21 @@ def create_backup():
     try:
         if not os.path.exists(BACKUP_DIR):
             os.makedirs(BACKUP_DIR)
-        
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        
+
         if os.path.exists(KNOWLEDGE_BASE_FILE):
             backup_kb = os.path.join(BACKUP_DIR, f'knowledge_base_{timestamp}.json')
             shutil.copy2(KNOWLEDGE_BASE_FILE, backup_kb)
-        
+
         if os.path.exists(MODEL_INSTRUCTIONS_FILE):
             backup_inst = os.path.join(BACKUP_DIR, f'model_instructions_{timestamp}.json')
             shutil.copy2(MODEL_INSTRUCTIONS_FILE, backup_inst)
-        
+
         if os.path.exists(REPRESENTATIVE_SETTINGS_FILE):
             backup_rep = os.path.join(BACKUP_DIR, f'representative_settings_{timestamp}.json')
             shutil.copy2(REPRESENTATIVE_SETTINGS_FILE, backup_rep)
-        
+
         return timestamp
     except Exception as e:
         app.logger.error(f"Backup creation failed: {e}")
@@ -215,48 +225,48 @@ def find_relevant_kb_entries(user_message, kb):
     """Find relevant knowledge base entries using keyword matching"""
     user_words = set(user_message.lower().split())
     relevant_entries = []
-    
+
     for qa in kb.get('qa_pairs', []):
         keywords = [kw.lower() for kw in qa.get('keywords', [])]
         keyword_matches = sum(1 for kw in keywords if any(word in kw or kw in word for word in user_words))
-        
+
         question_words = set(qa['question'].lower().split())
         question_matches = len(user_words.intersection(question_words))
-        
+
         relevance_score = keyword_matches * 2 + question_matches
-        
+
         if relevance_score > 0:
             relevant_entries.append((qa, relevance_score))
-    
+
     relevant_entries.sort(key=lambda x: x[1], reverse=True)
     return [entry[0] for entry in relevant_entries[:3]]  # Return top 3 most relevant
 
 def get_homepay_response(user_message):
     """Generate contextual responses using hybrid LLM approach (local Ollama + Anthropic fallback) with caching"""
-    
+
     cached_response = get_cached_response(user_message)
     if cached_response:
         app.logger.info(f"Returning cached response for: {user_message[:50]}...")
         return cached_response
-    
+
     kb = load_knowledge_base()
     relevant_entries = find_relevant_kb_entries(user_message, kb)
     if relevant_entries:
         app.logger.info(f"Found {len(relevant_entries)} relevant KB entries for: {user_message[:50]}...")
     else:
         app.logger.warning(f"No relevant KB entries found for: {user_message[:50]}...")
-    
+
     local_response = try_local_llm(user_message, relevant_entries)
     if local_response:
         cache_response(user_message, local_response)
         return local_response
-    
+
     if USE_HYBRID_LLM and ANTHROPIC_API_KEY:
         anthropic_response = try_anthropic_llm(user_message, relevant_entries)
         if anthropic_response:
             cache_response(user_message, anthropic_response)
             return anthropic_response
-    
+
     app.logger.warning("Both LLM methods failed, using keyword matching fallback")
     fallback_response = get_fallback_response(user_message)
     cache_response(user_message, fallback_response)
@@ -268,12 +278,12 @@ def try_local_llm(user_message, relevant_entries=None):
         kb = load_knowledge_base()
         instructions = load_model_instructions()
         rep_settings = load_representative_settings()
-        
+
         kb_entries = relevant_entries if relevant_entries else kb.get('qa_pairs', [])
-        
+
         gender_text = "נציג זכר" if rep_settings.get('gender') == 'male' else "נציגה נקבה"
         style_instructions = ""
-        
+
         if rep_settings.get('communication_style') == 'young_friendly':
             style_instructions = """
 סגנון תקשורת: צעיר וחברותי
@@ -290,7 +300,7 @@ def try_local_llm(user_message, relevant_entries=None):
 - השתמש בביטויים כמו "אשמח לעזור", "בכבוד רב", "לשירותכם"
 - הקפד על נימוס ומקצועיות
 """
-        
+
         context = f"{instructions}\n\n"
         context += f"אתה {gender_text} במערכת HomePay.\n"
         context += style_instructions
@@ -311,7 +321,7 @@ def try_local_llm(user_message, relevant_entries=None):
             context += f"תשובה: {qa['answer']}\n"
             context += "-" * 30 + "\n\n"
         context += "=" * 50 + "\n"
-        
+
         prompt = f"""{context}
 
 הוראות חשובות לעיבוד השאלה:
@@ -335,7 +345,7 @@ def try_local_llm(user_message, relevant_entries=None):
 
 תשובה מפורטת בפורמט HTML (על בסיס בסיס הידע בלבד):"""
 
-        response = requests.post(f'{OLLAMA_URL}/api/generate', 
+        response = requests.post(f'{OLLAMA_URL}/api/generate',
             json={
                 'model': LLM_MODEL,
                 'prompt': prompt,
@@ -349,7 +359,7 @@ def try_local_llm(user_message, relevant_entries=None):
             timeout=15,
             headers={'Content-Type': 'application/json; charset=utf-8'}
         )
-        
+
         if response.status_code == 200:
             result = response.json()
             llm_response = result.get('response', '').strip()
@@ -364,10 +374,10 @@ def try_local_llm(user_message, relevant_entries=None):
                 return llm_response
         else:
             app.logger.error(f"Local LLM API error: {response.status_code} - {response.text}")
-            
+
     except Exception as e:
         app.logger.error(f"Local LLM integration error: {e}")
-        
+
     return None
 
 def try_anthropic_llm(user_message, relevant_entries=None):
@@ -376,12 +386,12 @@ def try_anthropic_llm(user_message, relevant_entries=None):
         kb = load_knowledge_base()
         instructions = load_model_instructions()
         rep_settings = load_representative_settings()
-        
+
         kb_entries = relevant_entries if relevant_entries else kb.get('qa_pairs', [])
-        
+
         gender_text = "נציג זכר" if rep_settings.get('gender') == 'male' else "נציגה נקבה"
         style_instructions = ""
-        
+
         if rep_settings.get('communication_style') == 'young_friendly':
             style_instructions = """
 סגנון תקשורת: צעיר וחברותי
@@ -398,7 +408,7 @@ def try_anthropic_llm(user_message, relevant_entries=None):
 - השתמש בביטויים כמו "אשמח לעזור", "בכבוד רב", "לשירותכם"
 - הקפד על נימוס ומקצועיות
 """
-        
+
         context = f"{instructions}\n\n"
         context += f"אתה {gender_text} במערכת HomePay.\n"
         context += style_instructions
@@ -419,7 +429,7 @@ def try_anthropic_llm(user_message, relevant_entries=None):
             context += f"תשובה: {qa['answer']}\n"
             context += "-" * 30 + "\n\n"
         context += "=" * 50 + "\n"
-        
+
         prompt = f"""{context}
 
 הוראות חשובות לעיבוד השאלה:
@@ -453,23 +463,23 @@ def try_anthropic_llm(user_message, relevant_entries=None):
                 {"role": "user", "content": prompt}
             ]
         )
-        
+
         if response.content and response.content[0].text:
             anthropic_response = response.content[0].text.strip()
             if anthropic_response:
                 app.logger.info(f"Anthropic LLM response generated for: {user_message[:50]}...")
                 return anthropic_response
-                
+
     except Exception as e:
         app.logger.error(f"Anthropic LLM integration error: {e}")
-        
+
     return None
 
 def log_unknown_question(user_message):
     """Log questions that the agent couldn't answer"""
     try:
         unknown_questions_file = os.path.join(os.path.dirname(__file__), 'unknown_questions.json')
-        
+
         unknown_questions = []
         if os.path.exists(unknown_questions_file):
             try:
@@ -477,36 +487,36 @@ def log_unknown_question(user_message):
                     unknown_questions = json.load(f)
             except (json.JSONDecodeError, FileNotFoundError):
                 unknown_questions = []
-        
+
         new_question = {
             "id": len(unknown_questions) + 1,
             "question": user_message,
             "timestamp": datetime.now().isoformat(),
             "resolved": False
         }
-        
+
         unknown_questions.append(new_question)
-        
+
         with open(unknown_questions_file, 'w', encoding='utf-8') as f:
             json.dump(unknown_questions, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info(f"Logged unknown question: {user_message}")
-        
+
     except Exception as e:
         app.logger.error(f"Failed to log unknown question: {e}")
 
 def get_fallback_response(user_message):
     """Fallback to keyword matching if LLM fails"""
     message_lower = user_message.lower()
-    
+
     kb = load_knowledge_base()
     for qa in kb.get('qa_pairs', []):
         if any(keyword in message_lower for keyword in qa['keywords']):
             return qa['answer']
-    
+
     if any(word in message_lower for word in ["שלום", "היי", "בוקר טוב", "ערב טוב"]):
         return "שלום! אני סוכן התמיכה הדיגיטלי של HomePay. אני כאן לעזור לך עם תהליך התשלום של שוברי חוק המכר. איך אני יכול לעזור לך?"
-    
+
     if any(word in message_lower for word in ["התחברות", "לוגין", "כניסה", "סיסמה", "קוד"]):
         return """להתחברות למערכת HomePay:
 1. הזן את מספר הטלפון ומספר תעודת הזהות שלך
@@ -515,18 +525,18 @@ def get_fallback_response(user_message):
 4. לחץ על 'לאמת' להשלמת ההתחברות
 
 אם אתה מתקשה בהתחברות, וודא שהפרטים נכונים ושהטלפון זמין לקבלת SMS."""
-    
+
     if any(word in message_lower for word in ["תשלום", "שלם", "כסף", "סכום", "שובר"]):
         return """לביצוע תשלום במערכת HomePay:
 1. עבור לעמוד התשלומים ובחר את השובר הרלוונטי
-2. לחץ על כפתור 'שלם עכשיו' 
+2. לחץ על כפתור 'שלם עכשיו'
 3. מלא את פרטי החשבון בבנק (מספר חשבון, סניף, בנק)
 4. בחר את סוג התשלום (הון עצמי או משכנתא)
 5. הגדר מורשה חתימה והעלה תעודת זהות
 6. חתום דיגיטלית להשלמת התהליך
 
 כל התשלומים מאובטחים ומוצפנים."""
-    
+
     if any(word in message_lower for word in ["בנק", "חשבון", "סניף"]):
         return """למילוי פרטי חשבון הבנק:
 - בחר את הבנק שלך מהרשימה הנפתחת
@@ -535,7 +545,7 @@ def get_fallback_response(user_message):
 - וודא שהפרטים נכונים לפני המשך התהליך
 
 המערכת תומכת בכל הבנקים הגדולים בישראל."""
-    
+
     if any(word in message_lower for word in ["מורשה חתימה", "חתימה", "זהות", "העלאה"]):
         return """להגדרת מורשה חתימה:
 1. בחר את מספר מורשי החתימה הנדרשים
@@ -544,7 +554,7 @@ def get_fallback_response(user_message):
 4. חתום באזור החתימה הדיגיטלית
 
 וודא שתעודת הזהות ברורה וקריאה לאישור מהיר."""
-    
+
     if any(word in message_lower for word in ["בעיה", "שגיאה", "לא עובד", "תקלה"]):
         return """אם אתה נתקל בבעיות טכניות:
 1. רענן את הדף ונסה שוב
@@ -553,15 +563,15 @@ def get_fallback_response(user_message):
 4. נקה את המטמון והעוגיות
 
 אם הבעיה נמשכת, צור קשר עם התמיכה הטכנית."""
-    
+
     if any(word in message_lower for word in ["תודה", "תודה רבה", "אסור"]):
         return "בשמחה לעזור! אם יש לך שאלות נוספות על תהליך התשלום או המערכת, אני כאן בשבילך."
-    
+
     log_unknown_question(user_message)
-    
+
     return """מצטער, אני לא יכול לענות על השאלה הזו כרגע. אני רושם את השאלה שלך כדי שנוכל לשפר את השירות.
 
-אני כאן לעזור לך עם מערכת HomePay לתשלום שוברי חוק מכר. 
+אני כאן לעזור לך עם מערכת HomePay לתשלום שוברי חוק מכר.
 אני יכול לעזור עם:
 • תהליך ההתחברות למערכת
 • ביצוע תשלומים ומילוי פרטי בנק
@@ -594,26 +604,26 @@ def update_instructions():
     try:
         data = request.get_json()
         instructions = data.get('instructions', '')
-        
+
         if not instructions.strip():
             return jsonify({"error": "הנחיות לא יכולות להיות ריקות"}), 400
-        
+
         backup_timestamp = create_backup()
         if not backup_timestamp:
             app.logger.warning("Failed to create backup, proceeding with update")
-        
+
         instructions_data = {
             "instructions": instructions,
             "last_updated": datetime.now().isoformat(),
             "version": "1.0"
         }
-        
+
         with open(MODEL_INSTRUCTIONS_FILE, 'w', encoding='utf-8') as f:
             json.dump(instructions_data, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info("Model instructions updated successfully")
         return jsonify({"success": True, "backup": backup_timestamp})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to update instructions: {e}")
         return jsonify({"error": str(e)}), 500
@@ -625,32 +635,32 @@ def add_knowledge():
         data = request.get_json()
         question = data.get('question', '').strip()
         answer = data.get('answer', '').strip()
-        
+
         if not question or not answer:
             return jsonify({"error": "שאלה ותשובה חובה"}), 400
-        
+
         backup_timestamp = create_backup()
         if not backup_timestamp:
             app.logger.warning("Failed to create backup, proceeding with update")
-        
+
         kb = load_knowledge_base()
-        
+
         keywords = [word.strip() for word in question.split() if len(word.strip()) > 2]
-        
+
         new_item = {
             "keywords": keywords,
             "question": question,
             "answer": answer
         }
-        
+
         kb['qa_pairs'].append(new_item)
-        
+
         with open(KNOWLEDGE_BASE_FILE, 'w', encoding='utf-8') as f:
             json.dump(kb, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info(f"Added new knowledge item: {question[:50]}...")
         return jsonify({"success": True, "backup": backup_timestamp})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to add knowledge item: {e}")
         return jsonify({"error": str(e)}), 500
@@ -661,28 +671,28 @@ def delete_knowledge():
     try:
         data = request.get_json()
         index = data.get('index')
-        
+
         if index is None or not isinstance(index, int):
             return jsonify({"error": "אינדקס לא תקין"}), 400
-        
+
         backup_timestamp = create_backup()
         if not backup_timestamp:
             app.logger.warning("Failed to create backup, proceeding with update")
-        
+
         kb = load_knowledge_base()
         qa_pairs = kb.get('qa_pairs', [])
-        
+
         if index < 0 or index >= len(qa_pairs):
             return jsonify({"error": "אינדקס מחוץ לטווח"}), 400
-        
+
         removed_item = qa_pairs.pop(index)
-        
+
         with open(KNOWLEDGE_BASE_FILE, 'w', encoding='utf-8') as f:
             json.dump(kb, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info(f"Deleted knowledge item: {removed_item.get('question', '')[:50]}...")
         return jsonify({"success": True, "backup": backup_timestamp})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to delete knowledge item: {e}")
         return jsonify({"error": str(e)}), 500
@@ -705,7 +715,7 @@ def get_backups():
     try:
         if not os.path.exists(BACKUP_DIR):
             return jsonify({"backups": []})
-        
+
         backups = []
         for filename in os.listdir(BACKUP_DIR):
             if filename.endswith('.json'):
@@ -716,10 +726,10 @@ def get_backups():
                     "date": datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
                     "size": stat.st_size
                 })
-        
+
         backups.sort(key=lambda x: x['date'], reverse=True)
         return jsonify({"backups": backups})
-        
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -729,14 +739,14 @@ def restore_backup():
     try:
         data = request.get_json()
         backup_name = data.get('backup_name', '')
-        
+
         if not backup_name:
             return jsonify({"error": "שם גיבוי חובה"}), 400
-        
+
         backup_path = os.path.join(BACKUP_DIR, backup_name)
         if not os.path.exists(backup_path):
             return jsonify({"error": "גיבוי לא נמצא"}), 404
-        
+
         if 'knowledge_base' in backup_name:
             target_file = KNOWLEDGE_BASE_FILE
         elif 'model_instructions' in backup_name:
@@ -745,14 +755,14 @@ def restore_backup():
             target_file = REPRESENTATIVE_SETTINGS_FILE
         else:
             return jsonify({"error": "סוג גיבוי לא מזוהה"}), 400
-        
+
         current_backup = create_backup()
-        
+
         shutil.copy2(backup_path, target_file)
-        
+
         app.logger.info(f"Restored {target_file} from backup {backup_name}")
         return jsonify({"success": True, "current_backup": current_backup})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to restore backup: {e}")
         return jsonify({"error": str(e)}), 500
@@ -774,25 +784,25 @@ def update_representative():
         name = data.get('name', 'סוכן HomePay')
         gender = data.get('gender', 'male')
         communication_style = data.get('communication_style', 'young_friendly')
-        
+
         if gender == 'female':
             profile_picture = 'assets/profiles/Fagent_profile.jpg'
         else:  # male
             profile_picture = 'assets/profiles/Magent_profile.jpg'
-        
+
         if gender not in ['male', 'female']:
             return jsonify({"error": "מין לא תקין"}), 400
-        
+
         if communication_style not in ['young_friendly', 'formal_professional']:
             return jsonify({"error": "סגנון תקשורת לא תקין"}), 400
-        
+
         if not name or len(name.strip()) == 0:
             return jsonify({"error": "שם הסוכן לא יכול להיות רק"}), 400
-        
+
         backup_timestamp = create_backup()
         if not backup_timestamp:
             app.logger.warning("Failed to create backup, proceeding with update")
-        
+
         settings_data = {
             "name": name.strip(),
             "gender": gender,
@@ -801,13 +811,13 @@ def update_representative():
             "last_updated": datetime.now().isoformat(),
             "version": "1.0"
         }
-        
+
         with open(REPRESENTATIVE_SETTINGS_FILE, 'w', encoding='utf-8') as f:
             json.dump(settings_data, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info(f"Representative settings updated: {name}, {gender}, {communication_style}, profile: {profile_picture}")
         return jsonify({"success": True, "backup": backup_timestamp, "profile_picture": profile_picture})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to update representative settings: {e}")
         return jsonify({"error": str(e)}), 500
@@ -817,15 +827,15 @@ def get_unknown_questions():
     """Get list of unknown questions"""
     try:
         unknown_questions_file = os.path.join(os.path.dirname(__file__), 'unknown_questions.json')
-        
+
         if not os.path.exists(unknown_questions_file):
             return jsonify([])
-        
+
         with open(unknown_questions_file, 'r', encoding='utf-8') as f:
             unknown_questions = json.load(f)
-        
+
         return jsonify(unknown_questions)
-        
+
     except Exception as e:
         app.logger.error(f"Failed to get unknown questions: {e}")
         return jsonify({"error": "שגיאה בטעינת שאלות לא ידועות"}), 500
@@ -836,18 +846,18 @@ def mark_question_resolved():
     try:
         data = request.get_json()
         question_id = data.get('id')
-        
+
         if not question_id:
             return jsonify({"error": "מזהה שאלה חסר"}), 400
-        
+
         unknown_questions_file = os.path.join(os.path.dirname(__file__), 'unknown_questions.json')
-        
+
         if not os.path.exists(unknown_questions_file):
             return jsonify({"error": "קובץ שאלות לא נמצא"}), 404
-        
+
         with open(unknown_questions_file, 'r', encoding='utf-8') as f:
             unknown_questions = json.load(f)
-        
+
         question_found = False
         for question in unknown_questions:
             if question.get('id') == question_id:
@@ -855,16 +865,16 @@ def mark_question_resolved():
                 question['resolved_at'] = datetime.now().isoformat()
                 question_found = True
                 break
-        
+
         if not question_found:
             return jsonify({"error": "שאלה לא נמצאה"}), 404
-        
+
         with open(unknown_questions_file, 'w', encoding='utf-8') as f:
             json.dump(unknown_questions, f, ensure_ascii=False, indent=2)
-        
+
         app.logger.info(f"Marked question {question_id} as resolved")
         return jsonify({"success": True})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to mark question as resolved: {e}")
         return jsonify({"error": "שגיאה בעדכון סטטוס שאלה"}), 500
@@ -875,36 +885,36 @@ def upload_profile_picture():
     try:
         if 'profile_picture' not in request.files:
             return jsonify({"error": "לא נבחר קובץ"}), 400
-        
+
         file = request.files['profile_picture']
         if file.filename == '':
             return jsonify({"error": "לא נבחר קובץ"}), 400
-        
+
         allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
         file_extension = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
         if file_extension not in allowed_extensions:
             return jsonify({"error": "סוג קובץ לא נתמך. השתמש ב-PNG, JPG, JPEG, GIF או WebP"}), 400
-        
+
         file.seek(0, 2)  # Seek to end
         file_size = file.tell()
         file.seek(0)  # Reset to beginning
         if file_size > 5 * 1024 * 1024:
             return jsonify({"error": "גודל הקובץ חייב להיות קטן מ-5MB"}), 400
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"profile_{timestamp}.{file_extension}"
-        
+
         # Save to assets directory
         assets_dir = os.path.join(os.path.dirname(__file__), 'assets')
         if not os.path.exists(assets_dir):
             os.makedirs(assets_dir)
-        
+
         file_path = os.path.join(assets_dir, filename)
         file.save(file_path)
-        
+
         app.logger.info(f"Profile picture uploaded: {filename}")
         return jsonify({"success": True, "filename": f"assets/{filename}"})
-        
+
     except Exception as e:
         app.logger.error(f"Failed to upload profile picture: {e}")
         return jsonify({"error": "שגיאה בהעלאת התמונה"}), 500
@@ -915,19 +925,19 @@ def send_verification_code():
     try:
         data = request.get_json()
         phone = data.get('phone', '').strip()
-        
+
         if not phone:
             return jsonify({'success': False, 'message': 'מספר טלפון נדרש'}), 400
-        
+
         session['pending_phone'] = phone
         session['verification_code'] = '3110'  # Fixed code as requested
-        
+
         app.logger.info(f"Verification code requested for phone: {phone}")
         return jsonify({
-            'success': True, 
+            'success': True,
             'message': 'קוד אימות נשלח בהצלחה'
         })
-        
+
     except Exception as e:
         app.logger.error(f"Error sending verification code: {str(e)}")
         return jsonify({'success': False, 'message': 'שגיאה בשליחת קוד אימות'}), 500
@@ -939,26 +949,26 @@ def verify_phone():
         data = request.get_json()
         phone = data.get('phone', '').strip()
         code = data.get('code', '').strip()
-        
+
         if not phone or not code:
             return jsonify({'success': False, 'message': 'מספר טלפון וקוד נדרשים'}), 400
-        
-        if (session.get('pending_phone') == phone and 
+
+        if (session.get('pending_phone') == phone and
             session.get('verification_code') == code):
-            
+
             session['verified_phone'] = phone
             session.pop('pending_phone', None)
             session.pop('verification_code', None)
-            
+
             app.logger.info(f"Phone verified successfully: {phone}")
             return jsonify({
-                'success': True, 
+                'success': True,
                 'message': 'אימות הטלפון בוצע בהצלחה'
             })
         else:
             app.logger.warning(f"Failed phone verification for: {phone}")
             return jsonify({'success': False, 'message': 'קוד אימות שגוי'}), 401
-            
+
     except Exception as e:
         app.logger.error(f"Error verifying phone: {str(e)}")
         return jsonify({'success': False, 'message': 'שגיאה באימות הטלפון'}), 500
@@ -971,23 +981,23 @@ def log_chat_transcript():
         transcript = data.get('transcript', '')
         timestamp = data.get('timestamp', datetime.now().isoformat())
         phone = data.get('phone', session.get('verified_phone', 'Unknown'))
-        
+
         transcripts_dir = 'chat_transcripts'
         if not os.path.exists(transcripts_dir):
             os.makedirs(transcripts_dir)
-        
+
         # Generate filename with timestamp and phone
         safe_phone = phone.replace('-', '').replace(' ', '').replace('+', '') if phone != 'Unknown' else 'Unknown'
         filename = f"chat_transcript_{safe_phone}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
         filepath = os.path.join(transcripts_dir, filename)
-        
+
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(f"Chat Transcript - {timestamp}\n")
             if phone != 'Unknown':
                 f.write(f"Phone: {phone}\n")
             f.write("=" * 50 + "\n\n")
             f.write(transcript)
-        
+
         app.logger.info(f"Chat transcript logged: {filename} for phone: {phone}")
         return jsonify({'success': True, 'filename': filename})
     except Exception as e:
