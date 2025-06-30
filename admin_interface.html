@@ -340,7 +340,7 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    displayKnowledgeBase(result.knowledge);
+                    displayKnowledgeBase(result.qa_pairs);
                     showStatus('בסיס הידע נטען');
                 } else {
                     showStatus('שגיאה בטעינת בסיס ידע', true);
