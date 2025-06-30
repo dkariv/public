@@ -29,9 +29,10 @@ BACKUP_DIR = 'backups'
 response_cache = {}
 
 def get_cached_response(user_message):
-    """Get cached response for frequently asked questions"""
-    message_key = user_message.lower().strip()
-    return response_cache.get(message_key)
+    """Get cached response for frequently asked questions - temporarily disabled for testing"""
+    return None
+    # message_key = user_message.lower().strip()
+    # return response_cache.get(message_key)
 
 def cache_response(user_message, response):
     """Cache response for future use"""
@@ -508,11 +509,27 @@ def log_unknown_question(user_message):
 def get_fallback_response(user_message):
     """Fallback to keyword matching if LLM fails"""
     message_lower = user_message.lower()
+    message_words = set(message_lower.split())
 
     kb = load_knowledge_base()
+    best_match = None
+    best_score = 0
+    
     for qa in kb.get('qa_pairs', []):
-        if any(keyword in message_lower for keyword in qa['keywords']):
-            return qa['answer']
+        keywords = [kw.lower() for kw in qa.get('keywords', [])]
+        keyword_matches = sum(1 for kw in keywords if any(word in kw or kw in word for word in message_words))
+        
+        question_words = set(qa['question'].lower().split())
+        question_matches = len(message_words.intersection(question_words))
+        
+        relevance_score = keyword_matches * 2 + question_matches
+        
+        if relevance_score > best_score:
+            best_score = relevance_score
+            best_match = qa
+    
+    if best_match and best_score >= 2:
+        return best_match['answer']
 
     if any(word in message_lower for word in ["שלום", "היי", "בוקר טוב", "ערב טוב"]):
         return "שלום! אני סוכן התמיכה הדיגיטלי של HomePay. אני כאן לעזור לך עם תהליך התשלום של שוברי חוק המכר. איך אני יכול לעזור לך?"
