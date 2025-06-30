@@ -53,6 +53,11 @@ def serve_client_files(filename):
     """Serve static files from the client directory"""
     return send_from_directory('client', filename)
 
+@app.route('/buyer-guide')
+def buyer_guide():
+    """Serve the buyer guide page"""
+    return send_from_directory('.', 'index.html')
+
 @app.route('/homepay_guide_buyer.xml')
 def serve_guide_xml():
     """Serve the guide XML file"""
