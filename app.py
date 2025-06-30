@@ -211,6 +211,26 @@ def create_backup():
         app.logger.error(f"Backup creation failed: {e}")
         return None
 
+def find_relevant_kb_entries(user_message, kb):
+    """Find relevant knowledge base entries using keyword matching"""
+    user_words = set(user_message.lower().split())
+    relevant_entries = []
+    
+    for qa in kb.get('qa_pairs', []):
+        keywords = [kw.lower() for kw in qa.get('keywords', [])]
+        keyword_matches = sum(1 for kw in keywords if any(word in kw or kw in word for word in user_words))
+        
+        question_words = set(qa['question'].lower().split())
+        question_matches = len(user_words.intersection(question_words))
+        
+        relevance_score = keyword_matches * 2 + question_matches
+        
+        if relevance_score > 0:
+            relevant_entries.append((qa, relevance_score))
+    
+    relevant_entries.sort(key=lambda x: x[1], reverse=True)
+    return [entry[0] for entry in relevant_entries[:3]]  # Return top 3 most relevant
+
 def get_homepay_response(user_message):
     """Generate contextual responses using hybrid LLM approach (local Ollama + Anthropic fallback) with caching"""
     
@@ -219,13 +239,20 @@ def get_homepay_response(user_message):
         app.logger.info(f"Returning cached response for: {user_message[:50]}...")
         return cached_response
     
-    local_response = try_local_llm(user_message)
+    kb = load_knowledge_base()
+    relevant_entries = find_relevant_kb_entries(user_message, kb)
+    if relevant_entries:
+        app.logger.info(f"Found {len(relevant_entries)} relevant KB entries for: {user_message[:50]}...")
+    else:
+        app.logger.warning(f"No relevant KB entries found for: {user_message[:50]}...")
+    
+    local_response = try_local_llm(user_message, relevant_entries)
     if local_response:
         cache_response(user_message, local_response)
         return local_response
     
     if USE_HYBRID_LLM and ANTHROPIC_API_KEY:
-        anthropic_response = try_anthropic_llm(user_message)
+        anthropic_response = try_anthropic_llm(user_message, relevant_entries)
         if anthropic_response:
             cache_response(user_message, anthropic_response)
             return anthropic_response
@@ -235,12 +262,14 @@ def get_homepay_response(user_message):
     cache_response(user_message, fallback_response)
     return fallback_response
 
-def try_local_llm(user_message):
+def try_local_llm(user_message, relevant_entries=None):
     """Try local Ollama LLM"""
     try:
         kb = load_knowledge_base()
         instructions = load_model_instructions()
         rep_settings = load_representative_settings()
+        
+        kb_entries = relevant_entries if relevant_entries else kb.get('qa_pairs', [])
         
         gender_text = "נציג זכר" if rep_settings.get('gender') == 'male' else "נציגה נקבה"
         style_instructions = ""
@@ -270,24 +299,41 @@ def try_local_llm(user_message):
         context += "- ידידותי ותומך\n"
         context += "- מעודד שימוש במערכת הדיגיטלית\n"
         context += "- סבלני ומסביר בבירור\n\n"
-        context += "בסיס הידע שלך:\n"
-        for qa in kb.get('qa_pairs', []):
-            context += f"• שאלה: {qa['question']}\n  תשובה: {qa['answer']}\n\n"
+        context += "בסיס הידע שלך (חשוב לעיין בו בקפידה לפני מתן תשובה):\n"
+        context += "=" * 50 + "\n"
+        if relevant_entries:
+            context += f"נמצאו {len(kb_entries)} פריטי ידע רלוונטיים לשאלתך:\n\n"
+        for i, qa in enumerate(kb_entries, 1):
+            keywords_text = ", ".join(qa.get('keywords', []))
+            context += f"פריט ידע #{i}:\n"
+            context += f"מילות מפתח: {keywords_text}\n"
+            context += f"שאלה: {qa['question']}\n"
+            context += f"תשובה: {qa['answer']}\n"
+            context += "-" * 30 + "\n\n"
+        context += "=" * 50 + "\n"
         
         prompt = f"""{context}
 
-הוראות נוספות:
-- חשוב מאוד: ענה רק על בסיס המידע הקיים בבסיס הידע שלעיל. אל תמציא מידע, מספרי טלפון, כתובות או פרטים שאינם קיימים במערכת.
-- אם אינך יודע תשובה מדויקת על בסיס בסיס הידע, אמר בבירור שאתה לא יודע ותפנה את המשתמש לתמיכה אנושית.
-- אל תנחש או תמציא פרטים טכניים, מספרי טלפון, כתובות או מידע שאינו מופיע במפורש בבסיס הידע.
+הוראות חשובות לעיבוד השאלה:
+1. קרא בעיון את שאלת המשתמש: "{user_message}"
+2. חפש בבסיס הידע שלעיל פריטי ידע רלוונטיים על ידי השוואת:
+   - מילות המפתח של כל פריט ידע
+   - תוכן השאלות הקיימות
+   - נושאי התשובות
+3. אם מצאת פריט ידע רלוונטי - השתמש בתשובה שלו כבסיס למענה שלך
+4. אם לא מצאת פריט ידע רלוונטי - אמר בבירור שאין לך מידע על הנושא
+
+כללי מענה:
+- חשוב מאוד: ענה רק על בסיס המידע הקיים בבסיס הידע שלעיל
+- אל תמציא מידע, מספרי טלפון, כתובות או פרטים שאינם קיימים במערכת
+- אם אינך יודע תשובה מדויקת על בסיס בסיס הידע, אמר בבירור שאתה לא יודע ותפנה את המשתמש לתמיכה אנושית
+- אל תנחש או תמציא פרטים טכניים, מספרי טלפון, כתובות או מידע שאינו מופיע במפורש בבסיס הידע
+- תן תשובה בפורמט HTML עם פסקאות <p> ורשימות <ul><li>
 - אם התשובה יכולה להיות מועילה יותר עם תמונה, השתמש בתג HTML: <img src="/client/images/filename.png" alt="תיאור התמונה" style="max-width:300px;margin:10px 0;">
 - תמונות זמינות: 01_login_screen.png, 02_login_filled.png, 03_login_processing.png, 04_otp_verification.png, 05_otp_filled_processing.png, 06_main_dashboard_apartment_details.png, 07_payments_screen.png, 08_payments_scrolled_more_vouchers.png, 09_payments_more_vouchers_765k_665k.png
 - השתמש בתמונות רק כשהן רלוונטיות לשאלה
-- תן תשובה בפורמט HTML עם פסקאות <p> ורשימות <ul><li>
 
-שאלת המשתמש: {user_message}
-
-תשובה מפורטת בפורמט HTML (רק על בסיס בסיס הידע):"""
+תשובה מפורטת בפורמט HTML (על בסיס בסיס הידע בלבד):"""
 
         response = requests.post(f'{OLLAMA_URL}/api/generate', 
             json={
@@ -324,12 +370,14 @@ def try_local_llm(user_message):
         
     return None
 
-def try_anthropic_llm(user_message):
+def try_anthropic_llm(user_message, relevant_entries=None):
     """Try Anthropic Claude API as fallback"""
     try:
         kb = load_knowledge_base()
         instructions = load_model_instructions()
         rep_settings = load_representative_settings()
+        
+        kb_entries = relevant_entries if relevant_entries else kb.get('qa_pairs', [])
         
         gender_text = "נציג זכר" if rep_settings.get('gender') == 'male' else "נציגה נקבה"
         style_instructions = ""
@@ -359,24 +407,41 @@ def try_anthropic_llm(user_message):
         context += "- ידידותי ותומך\n"
         context += "- מעודד שימוש במערכת הדיגיטלית\n"
         context += "- סבלני ומסביר בבירור\n\n"
-        context += "בסיס הידע שלך:\n"
-        for qa in kb.get('qa_pairs', []):
-            context += f"• שאלה: {qa['question']}\n  תשובה: {qa['answer']}\n\n"
+        context += "בסיס הידע שלך (חשוב לעיין בו בקפידה לפני מתן תשובה):\n"
+        context += "=" * 50 + "\n"
+        if relevant_entries:
+            context += f"נמצאו {len(kb_entries)} פריטי ידע רלוונטיים לשאלתך:\n\n"
+        for i, qa in enumerate(kb_entries, 1):
+            keywords_text = ", ".join(qa.get('keywords', []))
+            context += f"פריט ידע #{i}:\n"
+            context += f"מילות מפתח: {keywords_text}\n"
+            context += f"שאלה: {qa['question']}\n"
+            context += f"תשובה: {qa['answer']}\n"
+            context += "-" * 30 + "\n\n"
+        context += "=" * 50 + "\n"
         
         prompt = f"""{context}
 
-הוראות נוספות:
-- חשוב מאוד: ענה רק על בסיס המידע הקיים בבסיס הידע שלעיל. אל תמציא מידע, מספרי טלפון, כתובות או פרטים שאינם קיימים במערכת.
-- אם אינך יודע תשובה מדויקת על בסיס בסיס הידע, אמר בבירור שאתה לא יודע ותפנה את המשתמש לתמיכה אנושית.
-- אל תנחש או תמציא פרטים טכניים, מספרי טלפון, כתובות או מידע שאינו מופיע במפורש בבסיס הידע.
+הוראות חשובות לעיבוד השאלה:
+1. קרא בעיון את שאלת המשתמש: "{user_message}"
+2. חפש בבסיס הידע שלעיל פריטי ידע רלוונטיים על ידי השוואת:
+   - מילות המפתח של כל פריט ידע
+   - תוכן השאלות הקיימות
+   - נושאי התשובות
+3. אם מצאת פריט ידע רלוונטי - השתמש בתשובה שלו כבסיס למענה שלך
+4. אם לא מצאת פריט ידע רלוונטי - אמר בבירור שאין לך מידע על הנושא
+
+כללי מענה:
+- חשוב מאוד: ענה רק על בסיס המידע הקיים בבסיס הידע שלעיל
+- אל תמציא מידע, מספרי טלפון, כתובות או פרטים שאינם קיימים במערכת
+- אם אינך יודע תשובה מדויקת על בסיס בסיס הידע, אמר בבירור שאתה לא יודע ותפנה את המשתמש לתמיכה אנושית
+- אל תנחש או תמציא פרטים טכניים, מספרי טלפון, כתובות או מידע שאינו מופיע במפורש בבסיס הידע
+- תן תשובה בפורמט HTML עם פסקאות <p> ורשימות <ul><li>
 - אם התשובה יכולה להיות מועילה יותר עם תמונה, השתמש בתג HTML: <img src="/client/images/filename.png" alt="תיאור התמונה" style="max-width:300px;margin:10px 0;">
 - תמונות זמינות: 01_login_screen.png, 02_login_filled.png, 03_login_processing.png, 04_otp_verification.png, 05_otp_filled_processing.png, 06_main_dashboard_apartment_details.png, 07_payments_screen.png, 08_payments_scrolled_more_vouchers.png, 09_payments_more_vouchers_765k_665k.png
 - השתמש בתמונות רק כשהן רלוונטיות לשאלה
-- תן תשובה בפורמט HTML עם פסקאות <p> ורשימות <ul><li>
 
-שאלת המשתמש: {user_message}
-
-תשובה מפורטת בפורמט HTML (רק על בסיס בסיס הידע):"""
+תשובה מפורטת בפורמט HTML (על בסיס בסיס הידע בלבד):"""
 
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=15.0)
         response = client.messages.create(
