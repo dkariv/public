@@ -3,7 +3,7 @@
   <mainHeading>מדריך לרוכש במערכת HomePay</mainHeading>
   <logo>assets/hplogo.png</logo>
   <headerSupportLink>
-    <url>ai_support_agent.html</url>
+    <url>client/ai_support_agent.html</url>
     <text>תמיכה עם סוכן AI</text>
   </headerSupportLink>
 
