@@ -56,7 +56,7 @@ def serve_client_files(filename):
 @app.route('/buyer-guide')
 def buyer_guide():
     """Serve the buyer guide page"""
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('client', 'index.html')
 
 @app.route('/homepay_guide_buyer.xml')
 def serve_guide_xml():
