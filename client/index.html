@@ -69,23 +69,25 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 2px solid transparent;
+            border: 3px solid #8e44ad;
         }
         
         .service-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            border-color: #3498db;
+            border-color: #9b59b6;
         }
         
         .service-card.buyers {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            color: #2c3e50;
+            border: 3px solid #8e44ad;
         }
         
         .service-card.support {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: white;
+            color: #2c3e50;
+            border: 3px solid #8e44ad;
         }
         
         .representative-image {
@@ -113,18 +115,19 @@
         .service-button {
             display: inline-block;
             padding: 15px 30px;
-            background: rgba(255,255,255,0.2);
+            background: #8e44ad;
             color: white;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s ease;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid #8e44ad;
         }
         
         .service-button:hover {
-            background: rgba(255,255,255,0.3);
+            background: #9b59b6;
+            border-color: #9b59b6;
             transform: scale(1.05);
         }
         
@@ -201,7 +204,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="/assets/hplogo.png" alt="HomePay Logo" class="logo">
+            <img src="/client/assets/hplogo.png" alt="HomePay Logo" class="logo">
             <h1 class="main-title">מרכז הדרכה ותמיכה במערכת הומפיי</h1>
             <p class="subtitle">
                 ברוכים הבאים למרכז ההדרכה והתמיכה של הומפיי לתשלום שוברי חוק מכר באופן דיגיטלי
@@ -211,7 +214,7 @@
         
         <div class="services-grid">
             <div class="service-card">
-                <img src="/assets/profiles/Magent_profile.jpg" alt="נציג זכר" class="representative-image">
+                <img src="/client/assets/profiles/Magent_profile.jpg" alt="נציג זכר" class="representative-image">
                 <h2 class="service-title">מרכז הדרכה לייזמים</h2>
                 <p class="service-description">
                     מדריכים מקצועיים לייזמים ובעלי עסקים המעוניינים להשתמש במערכת HomePay
@@ -222,7 +225,7 @@
             </div>
             
             <div class="service-card buyers">
-                <img src="/assets/profiles/Fagent_profile.jpg" alt="נציגה נקבה" class="representative-image">
+                <img src="/client/assets/profiles/Fagent_profile.jpg" alt="נציגה נקבה" class="representative-image">
                 <h2 class="service-title">מרכז הדרכה לרוכשים</h2>
                 <p class="service-description">
                     מדריך מקיף לרוכשים המעוניינים להבין ולהשתמש במערכת HomePay
@@ -232,18 +235,44 @@
         </div>
         
         <div class="ai-support-section">
-            <h2 class="ai-title">תמיכה חכמה 24/7</h2>
-            <p class="ai-description">
-                השירות החכם שלנו זמין עבורכם בכל שעות היממה לתמיכה מקצועית ומהירה
-                <br>סוכן AI מתקדם יעניק לכם מענה מיידי לכל שאלה או בעיה
-            </p>
-            <a href="/client/ai_support_agent.html" class="ai-button">פתח צ'אט תמיכה</a>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                <img src="/client/assets/aiagentc.png" alt="סוכן AI" style="width: 150px; height: 150px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3); object-fit: cover;">
+                <div style="text-align: center;">
+                    <h2 class="ai-title">תמיכה חכמה 24/7</h2>
+                    <p class="ai-description">
+                        השירות החכם שלנו זמין עבורכם בכל שעות היממה לתמיכה מקצועית ומהירה
+                        <br>סוכן AI מתקדם יעניק לכם מענה מיידי לכל שאלה או בעיה
+                    </p>
+                    <a href="/client/ai_support_agent.html" class="ai-button">פתח צ'אט תמיכה</a>
+                </div>
+            </div>
         </div>
         
         <div class="footer">
-            כל הזכויות שמורות לחברת הומפיי בע״מ | www.homepay.co.il | info@homepay.co.il
-            <br>
-            כתובתנו: רחוב זאב זבוטינסקי 9 בני ברק, מגדל הכשרת הישוב
+            <div style="background: #2c3e50; color: white; padding: 40px 20px; border-radius: 15px; margin-top: 30px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto;">
+                    <div>
+                        <h3 style="color: #8e44ad; margin-bottom: 15px; font-size: 1.2rem;">קישורים מהירים</h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <a href="https://www.homepay.co.il/" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s;">🏠 אתר הומפיי הראשי</a>
+                            <a href="https://www.homepay.co.il/about-1" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s;">ℹ️ אודות</a>
+                            <a href="https://www.homepay.co.il/s-projects-side-by-side" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s;">🔒 אבטחת מידע</a>
+                            <a href="https://www.homepay.co.il/%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA-%D7%95%D7%AA%D7%A0%D7%90%D7%99-%D7%A9%D7%99%D7%9E%D7%95%D7%A9" style="color: #ecf0f1; text-decoration: none; transition: color 0.3s;">📋 פרטיות ותנאי שימוש</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 style="color: #8e44ad; margin-bottom: 15px; font-size: 1.2rem;">פרטי קשר</h3>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="color: #ecf0f1;">📧 Email: <a href="mailto:info@homepay.co.il" style="color: #3498db; text-decoration: none;">info@homepay.co.il</a></div>
+                            <div style="color: #ecf0f1;">📞 Tel: <a href="tel:03-3733138" style="color: #3498db; text-decoration: none;">03-3733138</a></div>
+                            <div style="color: #ecf0f1;">📍 Jabotinsky 9 Bnei Brak, Israel 5126417</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #34495e; color: #95a5a6;">
+                    כל הזכויות שמורות לחברת הומפיי בע״מ © 2024
+                </div>
+            </div>
         </div>
     </div>
 </body>
