@@ -320,7 +320,7 @@
             <form id="phone-form">
                 <div class="form-group">
                     <label for="phone-input">מספר טלפון:</label>
-                    <input type="tel" id="phone-input" placeholder="050-1234567" required>
+                    <input type="tel" id="phone-input" placeholder="+972-50-1234567" value="+972-" required>
                 </div>
                 <button type="submit" class="verify-btn">שלח קוד אימות</button>
             </form>
@@ -557,7 +557,7 @@
                     document.getElementById('verification-code-section').style.display = 'block';
                     phoneInput.disabled = true;
                     document.querySelector('#phone-form button').disabled = true;
-                    showMessage('קוד אימות נשלח! אנא הזן את הקוד: 3110', 'success');
+                    showMessage('קוד אימות נשלח בהצלחה! אנא הזן את הקוד שקיבלת', 'success');
                 } else {
                     showMessage(result.message || 'שגיאה בשליחת קוד אימות', 'error');
                 }
@@ -616,18 +616,14 @@
             messageDiv.className = `message ${type}`;
         }
         
-        // Load agent settings when page loads and show chat directly (skip phone verification)
+        // Load agent settings when page loads
         window.addEventListener('load', function() {
-            // Skip phone verification and show chat directly
-            document.getElementById('phone-verification-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
+            // Show phone verification by default
+            document.getElementById('phone-verification-container').style.display = 'block';
+            document.getElementById('chat-container').style.display = 'none';
             
-            // Load agent settings and initialize chat
+            // Load agent settings
             loadAgentSettings();
-            
-            // Add initial welcome message to transcript
-            const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il איך אני יכול לעזור לך היום?';
-            addToTranscript(welcomeMessage, 'ai');
         });
 
         chatForm.addEventListener('submit', async function(event) {

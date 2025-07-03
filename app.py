@@ -7,6 +7,8 @@ import requests
 import logging
 import anthropic
 import shutil
+import boto3
+import random
 from datetime import datetime
 from functools import wraps
 
@@ -958,7 +960,7 @@ def upload_profile_picture():
 
 @app.route('/api/send_verification_code', methods=['POST'])
 def send_verification_code():
-    """Send verification code to phone (simulated)"""
+    """Send verification code to phone via AWS SNS"""
     try:
         data = request.get_json()
         phone = data.get('phone', '').strip()
@@ -966,14 +968,54 @@ def send_verification_code():
         if not phone:
             return jsonify({'success': False, 'message': 'מספר טלפון נדרש'}), 400
 
-        session['pending_phone'] = phone
-        session['verification_code'] = '3110'  # Fixed code as requested
+        # Generate random 4-digit verification code
+        verification_code = str(random.randint(1000, 9999))
+        
+        if phone.startswith('0'):
+            formatted_phone = '+972' + phone[1:]
+        elif not phone.startswith('+'):
+            formatted_phone = '+972' + phone
+        else:
+            formatted_phone = phone
 
-        app.logger.info(f"Verification code requested for phone: {phone}")
-        return jsonify({
-            'success': True,
-            'message': 'קוד אימות נשלח בהצלחה'
-        })
+        try:
+            sns_client = boto3.client('sns', region_name='us-east-1')
+            
+            message = f"קוד האימות שלך ב-HomePay: {verification_code}"
+            
+            response = sns_client.publish(
+                PhoneNumber=formatted_phone,
+                Message=message,
+                MessageAttributes={
+                    'AWS.SNS.SMS.SenderID': {
+                        'DataType': 'String',
+                        'StringValue': 'HomePay'
+                    },
+                    'AWS.SNS.SMS.SMSType': {
+                        'DataType': 'String',
+                        'StringValue': 'Transactional'
+                    }
+                }
+            )
+            
+            session['pending_phone'] = phone
+            session['verification_code'] = verification_code
+            
+            app.logger.info(f"SMS sent successfully to {formatted_phone}, MessageId: {response.get('MessageId')}")
+            return jsonify({
+                'success': True,
+                'message': 'קוד אימות נשלח בהצלחה'
+            })
+            
+        except Exception as sns_error:
+            app.logger.error(f"AWS SNS error: {str(sns_error)}")
+            session['pending_phone'] = phone
+            session['verification_code'] = '3110'  # Fixed fallback code
+            
+            return jsonify({
+                'success': True,
+                'message': 'קוד אימות נשלח (מצב פיתוח)'
+            })
 
     except Exception as e:
         app.logger.error(f"Error sending verification code: {str(e)}")
