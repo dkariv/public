@@ -371,21 +371,31 @@ def try_local_llm(user_message, relevant_entries=None):
         if response.status_code == 200:
             result = response.json()
             llm_response = result.get('response', '').strip()
+            app.logger.info(f"Ollama API response status: 200, response length: {len(llm_response) if llm_response else 0}")
             if llm_response:
                 try:
                     if '\\u' in llm_response:
                         llm_response = llm_response.encode().decode('unicode_escape')
                     llm_response = llm_response.encode('utf-8').decode('utf-8')
-                except:
-                    pass
-                app.logger.info(f"Local LLM response generated for: {user_message[:50]}...")
+                except Exception as encoding_error:
+                    app.logger.warning(f"Encoding processing failed: {encoding_error}")
+                app.logger.info(f"Local LLM response generated successfully for: {user_message[:50]}...")
+                app.logger.debug(f"LLM response preview: {llm_response[:200]}...")
                 return llm_response
+            else:
+                app.logger.warning(f"Ollama API returned empty response for: {user_message[:50]}...")
         else:
             app.logger.error(f"Local LLM API error: {response.status_code} - {response.text}")
+            app.logger.error(f"Request took longer than timeout, model may need optimization")
 
     except Exception as e:
         app.logger.error(f"Local LLM integration error: {e}")
+        app.logger.error(f"Exception type: {type(e).__name__}")
+        app.logger.error(f"Ollama service may need restart or model reload")
+        import traceback
+        app.logger.error(f"Full traceback: {traceback.format_exc()}")
 
+    app.logger.warning(f"try_local_llm() returning None for: {user_message[:50]}...")
     return None
 
 def try_anthropic_llm(user_message, relevant_entries=None):
