@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מדריך לרוכש - HomePay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #005baa;
+        }
+        .logo {
+            max-height: 60px;
+            margin-bottom: 10px;
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #005baa;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background: #004a8c;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-button">← חזרה לעמוד הראשי</a>
+    
+    <div class="container">
+        <div class="header">
+            <img src="/assets/hplogo.png" alt="HomePay Logo" class="logo">
+            <h1>מדריך לרוכש במערכת HomePay</h1>
+        </div>
+        
+        <div class="loading">
+            טוען את המדריך...
+        </div>
+        
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // Load the XML guide content dynamically
+        async function loadGuideContent() {
+            try {
+                const response = await fetch('/homepay_guide_buyer.xml');
+                if (!response.ok) {
+                    throw new Error('Failed to load guide content');
+                }
+                
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                // Parse and render the XML content
+                renderGuideContent(xmlDoc);
+                
+            } catch (error) {
+                console.error('Error loading guide:', error);
+                document.querySelector('.loading').innerHTML = 
+                    'שגיאה בטעינת המדריך. <a href="/">חזרה לעמוד הראשי</a>';
+            }
+        }
+        
+        function renderGuideContent(xmlDoc) {
+            const contentDiv = document.getElementById('content');
+            const loadingDiv = document.querySelector('.loading');
+            
+            // Hide loading message
+            loadingDiv.style.display = 'none';
+            
+            // Get main elements from XML
+            const introduction = xmlDoc.querySelector('introduction');
+            const sections = xmlDoc.querySelectorAll('section');
+            
+            let html = '';
+            
+            // Add introduction
+            if (introduction) {
+                html += `<div class="introduction">${introduction.textContent}</div>`;
+            }
+            
+            // Add sections
+            sections.forEach(section => {
+                const title = section.querySelector('title')?.textContent || '';
+                const steps = section.querySelectorAll('step');
+                
+                html += `<div class="section">
+                    <h2>${title}</h2>
+                    <div class="steps">`;
+                
+                steps.forEach((step, index) => {
+                    const stepTitle = step.querySelector('title')?.textContent || '';
+                    const description = step.querySelector('description')?.textContent || '';
+                    const image = step.querySelector('image');
+                    
+                    html += `<div class="step">
+                        <h3>${index + 1}. ${stepTitle}</h3>
+                        <p>${description}</p>`;
+                    
+                    if (image) {
+                        const src = image.getAttribute('src');
+                        const alt = image.getAttribute('alt') || '';
+                        html += `<img src="${src}" alt="${alt}" style="max-width: 100%; height: auto; margin: 10px 0;">`;
+                    }
+                    
+                    html += '</div>';
+                });
+                
+                html += '</div></div>';
+            });
+            
+            // Add support link
+            const supportLink = xmlDoc.querySelector('headerSupportLink');
+            if (supportLink) {
+                const url = supportLink.querySelector('url')?.textContent || '';
+                const text = supportLink.querySelector('text')?.textContent || '';
+                html += `<div class="support-section">
+                    <a href="${url}" class="support-link">${text}</a>
+                </div>`;
+            }
+            
+            contentDiv.innerHTML = html;
+        }
+        
+        // Load content when page loads
+        window.addEventListener('load', loadGuideContent);
+    </script>
+    
+    <style>
+        .introduction {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-right: 4px solid #005baa;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section h2 {
+            color: #005baa;
+            border-bottom: 2px solid #005baa;
+            padding-bottom: 10px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border-right: 3px solid #28a745;
+        }
+        
+        .step h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+        
+        .support-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: #005baa;
+            border-radius: 5px;
+        }
+        
+        .support-link {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            display: inline-block;
+        }
+        
+        .support-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</body>
+</html>
