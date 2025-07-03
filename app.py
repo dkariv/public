@@ -528,6 +528,9 @@ def get_fallback_response(user_message):
     message_lower = user_message.lower()
     message_words = set(message_lower.split())
 
+    if any(word in message_lower for word in ["שלום", "היי", "בוקר טוב", "ערב טוב"]):
+        return "שלום! אני סוכן התמיכה הדיגיטלי של HomePay. אני כאן לעזור לך עם תהליך התשלום של שוברי חוק המכר. איך אני יכול לעזור לך?"
+
     kb = load_knowledge_base()
     best_match = None
     best_score = 0
@@ -562,9 +565,6 @@ def get_fallback_response(user_message):
     
     if best_match and best_score >= 3:
         return best_match['answer']
-
-    if any(word in message_lower for word in ["שלום", "היי", "בוקר טוב", "ערב טוב"]):
-        return "שלום! אני סוכן התמיכה הדיגיטלי של HomePay. אני כאן לעזור לך עם תהליך התשלום של שוברי חוק המכר. איך אני יכול לעזור לך?"
 
     if any(word in message_lower for word in ["התחברות", "לוגין", "כניסה", "סיסמה", "קוד"]):
         return """להתחברות למערכת HomePay:
