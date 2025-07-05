@@ -48,27 +48,42 @@
         
         .header-buttons {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
         
         .header-button {
             color: #005baa;
             text-decoration: none;
-            background: #f0f8ff;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            padding: 10px 18px;
+            border-radius: 25px;
             font-size: 14px;
-            border: 1px solid #005baa;
+            font-weight: 500;
+            border: 2px solid #005baa;
             transition: all 0.3s ease;
             cursor: pointer;
             font-family: inherit;
+            min-width: 120px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 91, 170, 0.1);
+            white-space: nowrap;
         }
         
         .header-button:hover {
-            background: #005baa;
+            background: linear-gradient(135deg, #005baa 0%, #004a8c 100%);
             color: white;
             text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 91, 170, 0.2);
+        }
+        
+        .header-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 91, 170, 0.1);
         }
         
         /* Mobile responsive header buttons - keep in single row */
@@ -78,13 +93,16 @@
             }
             
             .header-buttons {
-                gap: 6px;
+                gap: 8px;
             }
             
             .header-button {
                 font-size: 12px;
-                padding: 6px 10px;
+                font-weight: 500;
+                padding: 8px 12px;
+                min-width: 100px;
                 min-height: 40px;
+                border-radius: 20px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -101,13 +119,16 @@
             }
             
             .header-buttons {
-                gap: 4px;
+                gap: 6px;
             }
             
             .header-button {
                 font-size: 11px;
-                padding: 5px 8px;
+                font-weight: 500;
+                padding: 6px 10px;
+                min-width: 85px;
                 min-height: 36px;
+                border-radius: 18px;
             }
             
             header img {
