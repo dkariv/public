@@ -6,67 +6,73 @@
     <title>תמיכה עם סוכן AI - HomePay</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-        }
-        header {
-            background: #ffffff;
-            padding: 15px 20px;
-            border-bottom: 1px solid #ddd;
-            width: 100%;
-            box-sizing: border-box;
             display: flex;
+            justify-content: flex-start;
             align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .back-button {
-            position: absolute;
-            right: 20px;
-            color: #005baa;
-            text-decoration: none;
-            background: #f0f8ff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            border: 1px solid #005baa;
-            transition: all 0.3s ease;
-        }
-        
-        .back-button:hover {
-            background: #005baa;
-            color: white;
-            text-decoration: none;
-        }
-        
-        header img {
-            max-height: 30px;
+            box-sizing: border-box;
         }
         .chat-container {
             width: 100%;
-            max-width: 700px;
-            background-color: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            margin-top: 20px;
+            max-width: 400px;
+            height: 700px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* To keep border-radius effect on children */
-            flex-grow: 1; /* Allows chat container to take available space */
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         .chat-header {
-            background-color: #005baa;
+            background: #2c3e50;
             color: white;
-            padding: 15px;
+            padding: 16px 20px;
             text-align: center;
-            font-size: 1.2em;
+            position: relative;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .chat-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .chat-header p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin: 4px 0 0 0;
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            border-radius: 50%;
         }
         
         .agent-info {
@@ -89,74 +95,372 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Space between messages */
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .rocket-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .welcome-section p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .bot-message {
+            background: #f8f9fa;
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            max-width: 280px;
+            margin: 10px 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .quick-action-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .quick-action-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
         }
         .message {
-            padding: 10px 15px;
-            border-radius: 15px;
-            max-width: 70%;
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
             line-height: 1.5;
         }
+
+        .message.bot {
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8ebf0 100%);
+            color: #333;
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
+        }
+
         .message.user {
-            background-color: #e6f3ff;
-            color: #333;
-            align-self: flex-start; /* Align to left for RTL */
-            border-bottom-left-radius: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left-radius: 4px;
         }
+
         .message.ai {
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #f0f2f5 0%, #e8ebf0 100%);
             color: #333;
-            align-self: flex-end; /* Align to right for RTL */
-            border-bottom-right-radius: 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
+            align-self: flex-start;
+            border-bottom-right-radius: 4px;
         }
-        
-        .ai-message-content {
-            flex: 1;
-        }
-        
-        .ai-message-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            margin-top: 5px;
-        }
+
         .chat-input {
             display: flex;
-            border-top: 1px solid #ddd;
-            padding: 10px;
+            padding: 8px;
+            gap: 8px;
+            align-items: center;
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e9ecef;
+            margin: 20px;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
         }
         .chat-input input[type="text"] {
             flex-grow: 1;
-            border: 1px solid #ccc;
+            border: none;
             border-radius: 20px;
-            padding: 10px 15px;
-            font-size: 1em;
-            margin-left: 10px; /* Space between input and button for RTL */
+            padding: 12px 18px;
+            font-size: 16px;
+            outline: none;
+            background: #f8f9fa;
+            min-height: 44px;
+            box-sizing: border-box;
+        }
+        .chat-input input[type="text"]:focus {
+            background: #fff;
         }
         .chat-input button {
-            background-color: #005baa;
-            color: white;
+            width: 44px;
+            height: 44px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
         .chat-input button:hover {
-            background-color: #004a8c;
+            background: #34495e;
         }
-        .typing-indicator {
-            font-style: italic;
-            color: #777;
-            padding: 5px 20px;
-            text-align: right; /* RTL */
-            display: none; /* Hidden by default */
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .chat-container {
+                max-width: 100%;
+                height: calc(100vh - 20px);
+                margin: 0;
+            }
+            
+            .chat-header {
+                padding: 16px;
+            }
+            
+            .chat-header h1 {
+                font-size: 20px;
+            }
+            
+            .chat-header p {
+                font-size: 12px;
+            }
+            
+            .chat-messages {
+                padding: 16px;
+                gap: 12px;
+            }
+            
+            .message {
+                max-width: 85%;
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+            
+            
+            .welcome-section {
+                padding: 30px 16px;
+                gap: 16px;
+            }
+
+            .rocket-emoji {
+                font-size: 40px;
+            }
+
+            .welcome-section h2 {
+                font-size: 16px;
+            }
+
+            .welcome-section p {
+                font-size: 13px;
+            }
+
+            .bot-message {
+                font-size: 13px;
+                padding: 10px 14px;
+                max-width: 260px;
+            }
+
+            .quick-action-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+                border-radius: 14px;
+            }
+            
+            .chat-input {
+                margin: 16px;
+                padding: 3px;
+            }
+            
+            .chat-input input[type="text"] {
+                font-size: 16px;
+                padding: 12px 16px;
+                min-height: 44px;
+            }
+            
+            .chat-input button {
+                width: 44px;
+                height: 44px;
+            }
+        }
+        
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 10px);
+                border-radius: 20px;
+            }
+            
+            .chat-header {
+                padding: 12px;
+            }
+            
+            .chat-header h1 {
+                font-size: 18px;
+            }
+            
+            .chat-header p {
+                font-size: 11px;
+            }
+            
+            .status-indicator {
+                width: 10px;
+                height: 10px;
+                top: 15px;
+                left: 15px;
+            }
+            
+            .chat-messages {
+                padding: 12px;
+                gap: 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 8px 12px;
+                font-size: 13px;
+                border-radius: 16px;
+            }
+            
+            
+            .quick-actions {
+                gap: 6px;
+                margin-top: 8px;
+            }
+            
+            .welcome-section {
+                padding: 20px 12px;
+                gap: 12px;
+            }
+
+            .rocket-emoji {
+                font-size: 36px;
+            }
+
+            .welcome-section h2 {
+                font-size: 15px;
+            }
+
+            .welcome-section p {
+                font-size: 12px;
+            }
+
+            .bot-message {
+                font-size: 12px;
+                padding: 8px 12px;
+                max-width: 240px;
+            }
+
+            .quick-action-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+                border-radius: 12px;
+            }
+            
+            .chat-input {
+                margin: 12px;
+                padding: 2px;
+            }
+            
+            .chat-input input[type="text"] {
+                padding: 10px 14px;
+                font-size: 16px;
+                min-height: 40px;
+            }
+            
+            .chat-input button {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .chat-input button svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+
+        .message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-btn {
+            background: rgba(30, 60, 114, 0.1);
+            color: #1e3c72;
+            border: 1px solid rgba(30, 60, 114, 0.2);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .quick-action-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
         }
         
         .chat-footer {
@@ -306,10 +610,6 @@
     </style>
 </head>
 <body>
-    <header>
-        <a href="index.html" class="back-button">← חזרה למדריך</a>
-        <img src="assets/hplogo.png" alt="HomePay Logo">
-    </header>
 
     <!-- Phone Verification Form -->
     <div id="phone-verification-container" class="verification-container">
@@ -339,36 +639,42 @@
 
     <div class="chat-container" id="chat-container" style="display: none;">
         <div class="chat-header">
-            <div class="agent-info">
-                <img id="agentAvatar" src="" alt="תמונת פרופיל" class="agent-avatar" style="display: none;">
-                <span id="agentName">סוכן תמיכה AI</span>
-            </div>
+            <div class="status-indicator"></div>
+            <h1><span id="agentName">AI סוכן</span> 🤖</h1>
+            <p>מוכן לעזור לך עם כל שאלה</p>
+            <img id="agentAvatar" src="" alt="תמונת פרופיל" class="agent-avatar" style="display: none;">
         </div>
         <div class="chat-messages" id="chat-messages">
-            <!-- Messages will appear here -->
-            <div class="message ai">
-                <img class="ai-message-avatar" src="/client/assets/hplogo.png" alt="תמונת פרופיל">
-                <div class="ai-message-content">
-                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay.<br><br>
-                    <strong>⚠️ שים לב:</strong> הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: <a href="mailto:info@homepay.co.il" style="color: #005baa;">info@homepay.co.il</a><br><br>
+            <div class="welcome-section">
+                <div class="rocket-emoji">🚀</div>
+                <h2>ברוכים הבאים לצ'אט AI!</h2>
+                <p>אני כאן לעזור לך עם כל שאלה או בעיה. כשוני תכתוב לי מה שמעניין אותך.</p>
+                <div class="bot-message">
+                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay.
+
+                    ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il
+
+
                     איך אני יכול לעזור לך היום?
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('שירותים')">שירותים</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('עזרה טכנית')">עזרה טכנית</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('יצירת קשר')">יצירת קשר</button>
                 </div>
             </div>
         </div>
-        <div class="typing-indicator" id="typing-indicator">הסוכן מקליד...</div>
         <form class="chat-input" id="chat-form">
-            <input type="text" id="user-input" placeholder="הקלד את שאלתך כאן..." autocomplete="off">
-            <button type="submit">שלח</button>
+            <input type="text" id="user-input" placeholder="הקלד את ההודעה שלך כאן..." autocomplete="off">
+            <button type="submit">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m22 2-7 20-4-9-9-4z"/>
+                    <path d="M22 2 11 13"/>
+                </svg>
+            </button>
         </form>
         
         <div class="chat-footer">
-            <div class="warning-message">
-                <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.
-            </div>
-            <div class="footer-buttons">
-                <a href="index.html" class="footer-button secondary">חזרה למדריך</a>
-                <button id="contact-human" class="footer-button" onclick="contactHumanRepresentative()">פניה לנציג אנושי</button>
-            </div>
         </div>
     </div>
 
@@ -444,6 +750,36 @@
             return transcript;
         }
         
+        // Function to send quick message
+        function sendQuickMessage(message) {
+            addMessage(message, 'user');
+            addToTranscript(message, 'user');
+            
+            typingIndicator.style.display = 'block';
+            
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                
+                let response;
+                switch(message) {
+                    case 'מידע על שירותים':
+                        response = 'אנחנו מציעים מגוון שירותים פיננסיים מתקדמים. האם תרצה לשמוע על שירות ספציפי?';
+                        break;
+                    case 'עזרה טכנית':
+                        response = 'אני כאן לעזור עם כל בעיה טכנית. אנא תאר את הבעיה שלך בפירוט.';
+                        break;
+                    case 'יצירת קשר':
+                        response = 'תוכל ליצור קשר איתנו בטלפון 03-1234567 או באימייל support@homepay.co.il';
+                        break;
+                    default:
+                        response = 'תודה על הפנייה! איך אני יכול לעזור לך?';
+                }
+                
+                addMessage(response, 'ai');
+                addToTranscript(response, 'ai');
+            }, 800);
+        }
+
         // Function to contact human representative
         async function contactHumanRepresentative() {
             const transcript = getFormattedTranscript();
@@ -672,31 +1008,17 @@
         });
 
         function addMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', sender);
+            const message = document.createElement('div');
+            message.className = `message ${sender}`;
             
             if (sender === 'user') {
-                messageDiv.textContent = text;
-            } else if (sender === 'ai') {
-                // AI message with avatar
-                const avatar = document.createElement('img');
-                avatar.className = 'ai-message-avatar';
-                avatar.src = window.agentSettings?.profile_picture ? `/client/${window.agentSettings.profile_picture}` : '/client/assets/hplogo.png';
-                avatar.alt = 'תמונת פרופיל';
-                avatar.onerror = function() {
-                    this.src = '/client/assets/hplogo.png';
-                };
-                
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'ai-message-content';
-                contentDiv.innerHTML = text; // Use innerHTML to support HTML content like <br> tags
-                
-                messageDiv.appendChild(avatar);
-                messageDiv.appendChild(contentDiv);
+                message.textContent = text;
+            } else if (sender === 'ai' || sender === 'bot') {
+                message.innerHTML = text;
             }
             
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+            chatMessages.appendChild(message);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     </script>
 </body>
