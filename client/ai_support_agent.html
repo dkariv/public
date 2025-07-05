@@ -49,6 +49,31 @@
             border-radius: 20px 20px 0 0;
         }
         
+        .header-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .nav-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+        
         .chat-header h1 {
             font-size: 20px;
             font-weight: 600;
@@ -640,6 +665,10 @@
     <div class="chat-container" id="chat-container" style="display: none;">
         <div class="chat-header">
             <div class="status-indicator"></div>
+            <div class="header-nav">
+                <a href="client/buyer_guide.html" class="nav-button">חזרה למדריך</a>
+                <a href="mailto:info@homepay.co.il" class="nav-button">פניה לנציג אנושי</a>
+            </div>
             <h1><span id="agentName">AI סוכן</span> 🤖</h1>
             <p>מוכן לעזור לך עם כל שאלה</p>
             <img id="agentAvatar" src="" alt="תמונת פרופיל" class="agent-avatar" style="display: none;">
@@ -650,12 +679,7 @@
                 <h2>ברוכים הבאים לצ'אט AI!</h2>
                 <p>אני כאן לעזור לך עם כל שאלה או בעיה. כשוני תכתוב לי מה שמעניין אותך.</p>
                 <div class="bot-message">
-                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay.
-
-                    ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il
-
-
-                    איך אני יכול לעזור לך היום?
+                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il איך אני יכול לעזור לך היום?
                 </div>
                 <div class="quick-actions">
                     <button class="quick-action-btn" onclick="sendQuickMessage('שירותים')">שירותים</button>
