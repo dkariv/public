@@ -46,6 +46,66 @@
             text-decoration: none;
         }
         
+        .header-buttons {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .header-button {
+            color: #005baa;
+            text-decoration: none;
+            background: #f0f8ff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #005baa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .header-button:hover {
+            background: #005baa;
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Mobile responsive header buttons */
+        @media (max-width: 768px) {
+            .header-buttons {
+                position: static;
+                justify-content: center;
+                margin-top: 10px;
+                gap: 8px;
+            }
+            
+            .header-button {
+                font-size: 13px;
+                padding: 6px 12px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-buttons {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .header-button {
+                width: 100%;
+                max-width: 200px;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+        
         header img {
             max-height: 30px;
         }
@@ -373,7 +433,10 @@
 </head>
 <body>
     <header>
-        <a href="index.html" class="back-button">← חזרה למדריך</a>
+        <div class="header-buttons">
+            <a href="index.html" class="header-button">← חזרה למדריך</a>
+            <button id="contact-human-header" class="header-button" onclick="contactHumanRepresentative()">פניה לנציג אנושי</button>
+        </div>
         <img src="assets/hplogo.png" alt="HomePay Logo">
     </header>
 
@@ -430,10 +493,6 @@
         <div class="chat-footer">
             <div class="warning-message">
                 <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.
-            </div>
-            <div class="footer-buttons">
-                <a href="index.html" class="footer-button secondary">חזרה למדריך</a>
-                <button id="contact-human" class="footer-button" onclick="contactHumanRepresentative()">פניה לנציג אנושי</button>
             </div>
         </div>
     </div>
