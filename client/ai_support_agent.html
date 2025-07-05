@@ -23,7 +23,7 @@
             box-sizing: border-box;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             position: relative;
         }
         
@@ -47,8 +47,6 @@
         }
         
         .header-buttons {
-            position: absolute;
-            right: 20px;
             display: flex;
             gap: 10px;
             align-items: center;
@@ -73,36 +71,47 @@
             text-decoration: none;
         }
         
-        /* Mobile responsive header buttons */
+        /* Mobile responsive header buttons - keep in single row */
         @media (max-width: 768px) {
-            .header-buttons {
-                position: static;
-                justify-content: center;
-                margin-top: 10px;
-                gap: 8px;
+            header {
+                padding: 10px 15px;
             }
             
-            .header-button {
-                font-size: 13px;
-                padding: 6px 12px;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
             .header-buttons {
-                flex-direction: column;
                 gap: 6px;
             }
             
             .header-button {
-                width: 100%;
-                max-width: 200px;
                 font-size: 12px;
+                padding: 6px 10px;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            header img {
+                max-height: 25px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
                 padding: 8px 10px;
+            }
+            
+            .header-buttons {
+                gap: 4px;
+            }
+            
+            .header-button {
+                font-size: 11px;
+                padding: 5px 8px;
+                min-height: 36px;
+            }
+            
+            header img {
+                max-height: 22px;
             }
         }
         
@@ -433,11 +442,11 @@
 </head>
 <body>
     <header>
+        <img src="assets/hplogo.png" alt="HomePay Logo">
         <div class="header-buttons">
             <a href="index.html" class="header-button">← חזרה למדריך</a>
             <button id="contact-human-header" class="header-button" onclick="contactHumanRepresentative()">פניה לנציג אנושי</button>
         </div>
-        <img src="assets/hplogo.png" alt="HomePay Logo">
     </header>
 
     <!-- Phone Verification Form -->
@@ -479,7 +488,7 @@
                 <img class="ai-message-avatar" src="/client/assets/hplogo.png" alt="תמונת פרופיל">
                 <div class="ai-message-content">
                     שלום! אני סוכן התמיכה הדיגיטלי של HomePay.<br><br>
-                    <strong>⚠️ שים לב:</strong> הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: <a href="mailto:info@homepay.co.il" style="color: #005baa;">info@homepay.co.il</a><br><br>
+                    <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.<br><br>
                     איך אני יכול לעזור לך היום?
                 </div>
             </div>
@@ -491,9 +500,6 @@
         </form>
         
         <div class="chat-footer">
-            <div class="warning-message">
-                <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.
-            </div>
         </div>
     </div>
 
@@ -724,7 +730,7 @@
                     loadAgentSettings();
                     
                     // Add initial welcome message to transcript
-                    const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il איך אני יכול לעזור לך היום?';
+                    const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שירות נסיוני: זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי. איך אני יכול לעזור לך היום?';
                     addToTranscript(welcomeMessage, 'ai');
                 } else {
                     showMessage(result.message || 'קוד אימות שגוי', 'error');
@@ -751,7 +757,7 @@
             loadAgentSettings();
             
             // Add initial welcome message to transcript
-            const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שים לב: הסוכן נמצא עדיין בגרסת נסיון. במקרה של בעיה או לקבלת מענה אנושי, ניתן לפנות בדואר אלקטרוני: info@homepay.co.il איך אני יכול לעזור לך היום?';
+            const welcomeMessage = 'שלום! אני סוכן התמיכה הדיגיטלי של HomePay. ⚠️ שירות נסיוני: זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי. איך אני יכול לעזור לך היום?';
             addToTranscript(welcomeMessage, 'ai');
         });
 
