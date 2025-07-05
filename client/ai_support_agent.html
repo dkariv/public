@@ -14,7 +14,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
             box-sizing: border-box;
         }
         header {
@@ -143,63 +143,49 @@
         }
         .chat-container {
             width: 100%;
-            max-width: 400px;
-            height: 700px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 380px;
+            height: 90vh;
+            max-height: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
         .chat-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #2c3e50;
             color: white;
-            padding: 20px;
+            padding: 16px 20px;
             text-align: center;
             position: relative;
+            border-radius: 20px 20px 0 0;
         }
         
         .chat-header h1 {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
-            margin: 0 0 5px 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .chat-header p {
-            font-size: 14px;
-            opacity: 0.9;
-            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+            margin: 4px 0 0 0;
         }
         
         .status-indicator {
             position: absolute;
-            top: 20px;
+            top: 16px;
             left: 20px;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #4CAF50;
             border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
         }
         
         .agent-info {
@@ -242,23 +228,75 @@
         .chat-messages::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.3);
         }
+
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .rocket-emoji {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .welcome-section p {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .bot-message {
+            background: #f8f9fa;
+            color: #333;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            max-width: 280px;
+            margin: 10px 0;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .quick-action-btn {
+            background: #f8f9fa;
+            color: #333;
+            border: 1px solid #e9ecef;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .quick-action-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
         .message {
             max-width: 80%;
             padding: 12px 16px;
             border-radius: 18px;
-            animation: fadeInMessage 0.3s ease-out;
             line-height: 1.5;
-        }
-
-        @keyframes fadeInMessage {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .message.bot {
@@ -282,56 +320,14 @@
             border-bottom-right-radius: 4px;
         }
 
-        .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-left: 8px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: white;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .message-wrapper {
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            animation: fadeInMessage 0.3s ease-out;
-        }
-
-        .message-wrapper.user {
-            flex-direction: row-reverse;
-        }
-
-        .message-wrapper.user .message-avatar {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        }
-        
-        .ai-message-content {
-            flex: 1;
-        }
-        
-        .ai-message-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            object-fit: cover;
-            flex-shrink: 0;
-            margin-top: 5px;
-        }
         .chat-input {
             display: flex;
-            padding: 4px;
+            padding: 8px;
             gap: 8px;
             align-items: center;
             background: white;
             border-radius: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
             margin: 20px;
             position: sticky;
             bottom: 0;
@@ -345,34 +341,27 @@
             font-size: 16px;
             outline: none;
             background: #f8f9fa;
-            transition: background-color 0.3s;
             min-height: 44px;
             box-sizing: border-box;
         }
         .chat-input input[type="text"]:focus {
             background: #fff;
-            box-shadow: 0 0 0 2px rgba(30, 60, 114, 0.1);
         }
         .chat-input button {
             width: 44px;
             height: 44px;
             border: none;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #2c3e50;
             color: white;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
             flex-shrink: 0;
         }
         .chat-input button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
-        }
-        .chat-input button:active {
-            transform: scale(0.95);
+            background: #34495e;
         }
         
         /* Mobile-specific improvements */
@@ -410,12 +399,30 @@
                 font-size: 14px;
             }
             
-            .message-avatar {
-                width: 28px;
-                height: 28px;
-                font-size: 14px;
-            }
             
+            .welcome-section {
+                padding: 30px 16px;
+                gap: 16px;
+            }
+
+            .rocket-emoji {
+                font-size: 40px;
+            }
+
+            .welcome-section h2 {
+                font-size: 16px;
+            }
+
+            .welcome-section p {
+                font-size: 13px;
+            }
+
+            .bot-message {
+                font-size: 13px;
+                padding: 10px 14px;
+                max-width: 260px;
+            }
+
             .quick-action-btn {
                 padding: 5px 10px;
                 font-size: 11px;
@@ -481,17 +488,35 @@
                 border-radius: 16px;
             }
             
-            .message-avatar {
-                width: 24px;
-                height: 24px;
-                font-size: 12px;
-            }
             
             .quick-actions {
                 gap: 6px;
                 margin-top: 8px;
             }
             
+            .welcome-section {
+                padding: 20px 12px;
+                gap: 12px;
+            }
+
+            .rocket-emoji {
+                font-size: 36px;
+            }
+
+            .welcome-section h2 {
+                font-size: 15px;
+            }
+
+            .welcome-section p {
+                font-size: 12px;
+            }
+
+            .bot-message {
+                font-size: 12px;
+                padding: 8px 12px;
+                max-width: 240px;
+            }
+
             .quick-action-btn {
                 padding: 4px 8px;
                 font-size: 10px;
@@ -519,47 +544,7 @@
                 height: 16px;
             }
         }
-        .typing-indicator {
-            padding: 10px 20px;
-        }
 
-        .typing-message {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #f0f2f5 0%, #e8ebf0 100%);
-            border-radius: 18px;
-            border-bottom-right-radius: 4px;
-            max-width: 80px;
-        }
-
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #999;
-            animation: typing 1.4s infinite;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.5;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
-        }
 
         .message-container {
             display: flex;
@@ -587,13 +572,8 @@
         }
 
         .quick-action-btn:hover {
-            background: rgba(30, 60, 114, 0.2);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .quick-action-btn:active {
-            transform: translateY(0);
+            background: #e9ecef;
+            border-color: #dee2e6;
         }
         
         .chat-footer {
@@ -780,33 +760,27 @@
     <div class="chat-container" id="chat-container" style="display: none;">
         <div class="chat-header">
             <div class="status-indicator"></div>
-            <h1>🤖 <span id="agentName">סוכן AI</span></h1>
+            <h1><span id="agentName">AI סוכן</span> 🤖</h1>
             <p>מוכן לעזור לך עם כל שאלה</p>
             <img id="agentAvatar" src="" alt="תמונת פרופיל" class="agent-avatar" style="display: none;">
         </div>
         <div class="chat-messages" id="chat-messages">
-            <!-- Messages will appear here -->
-            <div class="message ai">
-                <img class="ai-message-avatar" src="/client/assets/hplogo.png" alt="תמונת פרופיל">
-                <div class="ai-message-content">
-                    שלום! אני סוכן התמיכה הדיגיטלי של HomePay.<br><br>
-                    <strong>⚠️ שירות נסיוני:</strong> זהו שירות חדש בתקופת נסיון. המידע שנמסר באמצעות הסוכן יכול להיות לא מעודכן או לא מדויק. יש לקחת זאת בחשבון ובכל מקרה של אי הבנה יש לפנות לנציג אנושי.<br><br>
-                    איך אני יכול לעזור לך היום?
+            <div class="welcome-section">
+                <div class="rocket-emoji">🚀</div>
+                <h2>ברוכים הבאים לצ'אט AI!</h2>
+                <p>אני כאן לעזור לך עם כל שאלה או בעיה. כשוני תכתוב לי מה שמעניין אותך.</p>
+                <div class="bot-message">
+                    שלום! אני הסוכן הדיגיטלי שלך. איך אני יכול לעזור לך היום?
                 </div>
-            </div>
-        </div>
-        <div class="typing-indicator" id="typing-indicator" style="display: none;">
-            <div class="message-wrapper bot">
-                <div class="message-avatar">🤖</div>
-                <div class="typing-message">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('שירותים')">שירותים</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('עזרה טכנית')">עזרה טכנית</button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('יצירת קשר')">יצירת קשר</button>
                 </div>
             </div>
         </div>
         <form class="chat-input" id="chat-form">
-            <input type="text" id="user-input" placeholder="הקלד את שאלתך כאן..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="הקלד את ההודעה שלך כאן..." autocomplete="off">
             <button type="submit">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="m22 2-7 20-4-9-9-4z"/>
@@ -1149,53 +1123,17 @@
         });
 
         function addMessage(text, sender) {
-            const messageWrapper = document.createElement('div');
-            messageWrapper.className = `message-wrapper ${sender}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = sender === 'user' ? '👤' : '🤖';
-            
-            const messageContainer = document.createElement('div');
-            messageContainer.className = 'message-container';
-            
             const message = document.createElement('div');
             message.className = `message ${sender}`;
             
             if (sender === 'user') {
                 message.textContent = text;
             } else if (sender === 'ai' || sender === 'bot') {
-                message.innerHTML = text; // Use innerHTML to support HTML content like <br> tags
-                
-                // Add quick action buttons for AI messages
-                const quickActions = document.createElement('div');
-                quickActions.className = 'quick-actions';
-                
-                const actionButtons = [
-                    { text: 'מידע על שירותים', action: 'מידע על שירותים' },
-                    { text: 'עזרה טכנית', action: 'עזרה טכנית' },
-                    { text: 'יצירת קשר', action: 'יצירת קשר' }
-                ];
-                
-                actionButtons.forEach(button => {
-                    const btn = document.createElement('button');
-                    btn.className = 'quick-action-btn';
-                    btn.textContent = button.text;
-                    btn.onclick = () => sendQuickMessage(button.action);
-                    quickActions.appendChild(btn);
-                });
-                
-                messageContainer.appendChild(message);
-                messageContainer.appendChild(quickActions);
-            } else {
-                messageContainer.appendChild(message);
+                message.innerHTML = text;
             }
             
-            messageWrapper.appendChild(avatar);
-            messageWrapper.appendChild(messageContainer);
-            chatMessages.appendChild(messageWrapper);
-            
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+            chatMessages.appendChild(message);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
     </script>
 </body>
